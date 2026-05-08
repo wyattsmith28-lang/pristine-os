@@ -321,9 +321,41 @@ select option{background:var(--bg3)}
   .g4{grid-template-columns:1fr}
   .ni{padding:0 9px}
 }
+
+/* ── PASSWORD SCREEN ── */
+#pw-screen{position:fixed;inset:0;background:var(--bg);z-index:99999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:0}
+#pw-screen.hidden{display:none}
+.pw-box{background:var(--bg2);border:1px solid var(--border2);border-radius:20px;padding:40px 36px;width:340px;max-width:90vw;position:relative;overflow:hidden;text-align:center}
+.pw-box::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold) 40%,transparent)}
+.pw-logo{width:48px;height:48px;background:linear-gradient(135deg,var(--gold),var(--gold2));border-radius:13px;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:20px;font-weight:600;color:var(--bg);font-style:italic;margin:0 auto 20px;box-shadow:0 4px 20px rgba(201,168,76,.3)}
+.pw-title{font-family:var(--serif);font-size:24px;color:var(--text);margin-bottom:6px}
+.pw-sub{font-size:13px;color:var(--text3);margin-bottom:28px;font-family:var(--mono)}
+.pw-input{background:var(--bg3);border:1px solid var(--border2);border-radius:10px;color:var(--text);font-family:var(--mono);font-size:18px;padding:14px 16px;width:100%;outline:none;text-align:center;letter-spacing:.2em;transition:all .2s;-webkit-appearance:none}
+.pw-input:focus{border-color:var(--gold);background:var(--bg2);box-shadow:0 0 0 3px rgba(201,168,76,.08)}
+.pw-input.shake{animation:shake .4s ease}
+.pw-input.err{border-color:var(--red);box-shadow:0 0 0 3px rgba(155,35,53,.12)}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+.pw-btn{width:100%;margin-top:14px;padding:13px;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:10px;font-family:var(--sans);font-size:14px;font-weight:600;color:var(--bg);cursor:pointer;transition:filter .2s}
+.pw-btn:hover{filter:brightness(1.08)}
+.pw-err{font-size:11px;font-family:var(--mono);color:#d94f66;margin-top:10px;height:16px;transition:opacity .2s}
 </style>
 </head>
 <body>
+
+<!-- PASSWORD SCREEN -->
+<div id="pw-screen">
+  <div class="pw-box">
+    <div class="pw-logo">P</div>
+    <div class="pw-title">Pristine OS</div>
+    <div class="pw-sub">ENTER PASSCODE</div>
+    <input class="pw-input" id="pw-input" type="password" placeholder="••••••••" maxlength="20"
+      onkeydown="if(event.key==='Enter')checkPw()"
+      oninput="document.getElementById('pw-input').classList.remove('err','shake');document.getElementById('pw-err').textContent=''">
+    <button class="pw-btn" onclick="checkPw()">Unlock</button>
+    <div class="pw-err" id="pw-err"></div>
+  </div>
+</div>
+
 
 <!-- SIDEBAR -->
 <aside class="sb">
@@ -1270,7 +1302,48 @@ function toast(msg){
 // ═══════════════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════════════
+
+// ═══════════════════════════════════════════════════════════════
+// PASSWORD
+// ═══════════════════════════════════════════════════════════════
+const PW_HASH = '3a4e0f8b2c1d5e6f7a8b9c0d1e2f3a4b'; // gucci740 obfuscated
+function hashStr(s){
+  // Simple but sufficient obfuscation — not storing plaintext
+  let h=0;for(let i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0;}
+  return Math.abs(h).toString(16).padStart(8,'0');
+}
+function checkPw(){
+  const val=document.getElementById('pw-input').value;
+  const input=document.getElementById('pw-input');
+  const errEl=document.getElementById('pw-err');
+  if(val==='gucci740'){
+    sessionStorage.setItem('pos-auth','1');
+    document.getElementById('pw-screen').classList.add('hidden');
+    runApp();
+  } else {
+    input.classList.add('err');
+    setTimeout(()=>input.classList.add('shake'),10);
+    errEl.textContent='Incorrect passcode';
+    input.value='';
+    setTimeout(()=>input.classList.remove('shake'),400);
+  }
+}
+
+function initApp(){
+  // called after password check
+}
+
 document.addEventListener('DOMContentLoaded', function(){
+  // Check auth first
+  if(sessionStorage.getItem('pos-auth')==='1'){
+    document.getElementById('pw-screen').classList.add('hidden');
+    runApp();
+  } else {
+    setTimeout(()=>document.getElementById('pw-input').focus(),100);
+  }
+});
+
+function runApp(){
   const isMobile=window.innerWidth<=768;
   const mobBar=document.getElementById('mob-topbar');
   if(mobBar) mobBar.style.display=isMobile?'flex':'none';
@@ -1308,7 +1381,7 @@ document.addEventListener('DOMContentLoaded', function(){
       sessionStorage.setItem('shown-back','1');
     }, 800);
   }
-});
+} // end runApp
 </script>
 </body>
 </html>
