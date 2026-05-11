@@ -24,7 +24,8 @@
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;overflow:hidden;max-width:100vw}
-body{font-family:var(--sans);background:var(--bg);color:var(--text);display:flex;height:100vh;font-size:14px;-webkit-font-smoothing:antialiased}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);display:flex;flex-direction:column;height:100dvh;font-size:14px;-webkit-font-smoothing:antialiased}
+
 
 /* PASSWORD */
 #pw-screen{position:fixed;inset:0;background:var(--bg);z-index:99999;display:flex;align-items:center;justify-content:center}
@@ -53,7 +54,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);display:flex
 .loc-badge.tucson{background:rgba(194,90,26,.2);color:var(--amber)}
 
 /* SIDEBAR */
-.sb{width:var(--sb);background:var(--bg2);display:flex;flex-direction:column;flex-shrink:0;border-right:1px solid var(--border);position:relative;z-index:10}
+.sb{width:var(--sb);background:var(--bg2);display:flex;flex-direction:column;flex-shrink:0;border-right:1px solid var(--border);position:relative;z-index:10;height:100%}
 .sb::after{content:'';position:absolute;right:0;top:0;bottom:0;width:1px;background:linear-gradient(to bottom,transparent,var(--gold) 30%,var(--gold) 70%,transparent);opacity:.18;pointer-events:none}
 .sb-top{padding:16px 0 14px;display:flex;justify-content:center;border-bottom:1px solid var(--border)}
 .logo-mark{width:36px;height:36px;background:linear-gradient(135deg,var(--gold),var(--gold2));border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:15px;font-weight:600;color:var(--bg);font-style:italic;box-shadow:0 4px 16px rgba(201,168,76,.3);cursor:pointer;transition:box-shadow .3s}
@@ -68,10 +69,8 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);display:flex
 .clock{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--text2);text-align:center}
 .clock-d{font-size:9px;color:var(--text3);font-family:var(--mono);text-align:center}
 
-/* LAYOUT */
-.app-wrap{display:flex;flex:1;overflow:hidden}
-.right-col{display:flex;flex-direction:column;flex:1;overflow:hidden;min-height:0}
-.main{flex:1;overflow-y:auto;overflow-x:hidden;background:var(--bg)}
+
+.main{flex:1;overflow-y:auto;overflow-x:hidden;background:var(--bg);min-height:0}
 .page{display:none;padding:32px 38px;min-height:100%;animation:pgIn .22s var(--ease) both}
 .page.on{display:block}
 @keyframes pgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
@@ -378,10 +377,9 @@ textarea{resize:vertical;min-height:70px;line-height:1.6}
 @media(max-width:768px){
   :root{--sb:0px}
   html,body{height:100dvh;overflow:hidden}
-  body{flex-direction:column}
-  /* On mobile, app-wrap stacks everything vertically */
-  .app-wrap{flex-direction:column}
-  .right-col{flex:1;overflow:hidden;min-height:0;display:flex;flex-direction:column}
+  body{flex-direction:column;height:100dvh}
+  .app-wrap{flex-direction:column;height:100%;overflow:hidden}
+  .right-col{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0}
   .sb{width:100%;height:auto;flex-direction:column;flex-shrink:0}
   .sb::after{display:none}
   .mob-topbar{display:flex;align-items:center;justify-content:space-between;padding:10px 14px 8px;border-bottom:1px solid var(--border)}
@@ -395,7 +393,7 @@ textarea{resize:vertical;min-height:70px;line-height:1.6}
   .ni-lbl{font-size:10px}
   .ni svg{width:13px;height:13px}
   .nbadge{top:3px;right:3px;width:6px;height:6px}
-  .main{flex:1;width:100%;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+  .main{flex:1;width:100%;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;min-height:0}
   .page{padding:14px 14px 120px}
   .ph{margin-bottom:18px}
   .ph-line{left:-14px}
