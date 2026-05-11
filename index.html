@@ -69,8 +69,8 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);display:flex
 .clock-d{font-size:9px;color:var(--text3);font-family:var(--mono);text-align:center}
 
 /* LAYOUT */
-.app-wrap{display:flex;flex:1;flex-direction:column;overflow:hidden}
-.app-body{display:flex;flex:1;overflow:hidden}
+.app-wrap{display:flex;flex:1;flex-direction:column;overflow:hidden;min-height:0}
+.app-body{display:flex;flex:1;overflow:hidden;min-height:0}
 .main{flex:1;overflow-y:auto;overflow-x:hidden;background:var(--bg)}
 .page{display:none;padding:32px 38px;min-height:100%;animation:pgIn .22s var(--ease) both}
 .page.on{display:block}
@@ -378,22 +378,25 @@ textarea{resize:vertical;min-height:70px;line-height:1.6}
 @media(max-width:768px){
   :root{--sb:0px}
   html,body{height:100dvh;overflow:hidden}
-  body{flex-direction:column}
-  .sb{width:100%;height:auto;flex-direction:column;flex-shrink:0}
+  body{flex-direction:column;overflow:hidden}
+  .app-wrap{display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden}
+  .app-body{display:flex;flex:1;min-height:0;overflow:hidden}
+  .loc-bar{flex-shrink:0}
+  .sb{width:100%;height:auto;flex-direction:column;flex-shrink:0;overflow:hidden}
   .sb::after{display:none}
-  .mob-topbar{display:flex;align-items:center;justify-content:space-between;padding:10px 14px 8px;border-bottom:1px solid var(--border)}
+  .mob-topbar{display:flex;align-items:center;justify-content:space-between;padding:10px 14px 8px;border-bottom:1px solid var(--border);flex-shrink:0}
   .mob-brand{font-family:var(--serif);font-size:17px;color:var(--text);font-style:italic}
   .mob-brand em{color:var(--gold)}
   .mob-time{font-family:var(--mono);font-size:12px;color:var(--text3)}
   .sb-top,.sb-bottom{display:none}
-  .nav{flex-direction:row;padding:0 7px 7px;gap:3px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .nav{flex-direction:row;padding:0 7px 7px;gap:3px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;flex-shrink:0}
   .nav::-webkit-scrollbar{display:none}
   .ni{flex-direction:row;width:auto;height:34px;padding:0 10px;gap:5px;border-radius:99px;white-space:nowrap;flex-shrink:0}
   .ni-lbl{font-size:10px}
   .ni svg{width:13px;height:13px}
   .nbadge{top:3px;right:3px;width:6px;height:6px}
-  .main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;min-height:0}
-  .page{padding:14px 14px 90px}
+  .main{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;min-height:0;display:block}
+  .page{padding:14px 14px 120px}
   .ph{margin-bottom:18px}
   .ph-line{left:-14px}
   .ph-t{font-size:22px}
