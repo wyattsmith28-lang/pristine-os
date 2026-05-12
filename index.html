@@ -1536,13 +1536,33 @@ function weeklyAmex(data){
 // CORS PROXY
 // ══════════════════════════════════════════════════════════════
 function gasFetch(url,onSuccess,onError){
-  const proxy='https://api.allorigins.win/get?url='+encodeURIComponent(url);
-  fetch(proxy).then(r=>r.json()).then(w=>{
-    if(!w.contents)throw new Error('empty');
-    onSuccess(JSON.parse(w.contents));
-  }).catch(()=>{
-    fetch(url).then(r=>r.text()).then(t=>onSuccess(JSON.parse(t))).catch(e=>{if(onError)onError(e);});
-  });
+  // Try multiple proxies in sequence for reliability
+  const proxies=[
+    u=>'https://api.allorigins.win/get?url='+encodeURIComponent(u),
+    u=>'https://corsproxy.io/?'+encodeURIComponent(u),
+    u=>'https://api.codetabs.com/v1/proxy?quest='+encodeURIComponent(u),
+  ];
+  let tried=0;
+  function tryNext(){
+    if(tried>=proxies.length){
+      // Last resort: try direct (works if GAS has CORS headers)
+      fetch(url,{method:'GET',mode:'cors'})
+        .then(r=>r.json()).then(d=>onSuccess(d))
+        .catch(e=>{if(onError)onError(e);else console.warn('gasFetch failed:',url);});
+      return;
+    }
+    const proxyUrl=proxies[tried++](url);
+    fetch(proxyUrl,{signal:AbortSignal.timeout(8000)})
+      .then(r=>r.json())
+      .then(w=>{
+        // allorigins wraps in .contents, codetabs returns directly
+        const raw=w.contents||w;
+        const data=typeof raw==='string'?JSON.parse(raw):raw;
+        onSuccess(data);
+      })
+      .catch(()=>tryNext());
+  }
+  tryNext();
 }
 
 // ══════════════════════════════════════════════════════════════
