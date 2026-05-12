@@ -706,7 +706,7 @@ body { display: flex !important; flex-direction: row !important; }
   <div id="emp-breakdown"></div>
   <div class="sl">KPI tiles — this week</div>
   <div class="g4" id="kpi-tiles"></div>
-  <div class="sl">Log today</div>
+  <div class="sl">Log this week — on Friday only</div>
   <div class="card">
     <div style="font-size:11px;font-family:var(--mono);color:var(--text3);background:var(--bg3);border:1px solid var(--border);border-radius:var(--rsm);padding:10px 14px;margin-bottom:12px">💡 Leads auto-count from pipeline. Log revenue + spend daily. Add leads/jobs at end of week only if needed.</div>
     <div class="g2">
@@ -798,7 +798,49 @@ body { display: flex !important; flex-direction: row !important; }
 <!-- REPORT -->
 <div class="page" id="page-report">
   <div class="ph"><div class="ph-line"></div><div class="ph-ey">Weekly Report</div><div class="ph-t">Auto-built. Just review.</div><div class="ph-s">Numbers pull from KPI entries and Square. Add your summary and export.</div></div>
+  <div class="sl">Friday inputs — fill once when building report</div>
+  <div class="card" style="border-color:rgba(201,168,76,.2);background:rgba(201,168,76,.04)">
+    <div style="font-size:10px;font-family:var(--mono);color:var(--gold);letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px">📅 Weekly — fill on Friday, saves automatically</div>
+    <div class="g2">
+      <div><span class="fl">Google Ads ($)</span><input type="number" id="r-google" placeholder="0" min="0" oninput="saveReportInputs()"></div>
+      <div><span class="fl">Meta Ads ($)</span><input type="number" id="r-meta" placeholder="0" min="0" oninput="saveReportInputs()"></div>
+      <div><span class="fl">Yelp Ads ($)</span><input type="number" id="r-yelp" placeholder="0" min="0" oninput="saveReportInputs()"></div>
+      <div><span class="fl">CPL — Detailing ($)</span><input type="number" id="r-cpld" placeholder="0" min="0" oninput="saveReportInputs()"></div>
+      <div><span class="fl">CPL — Ceramic ($)</span><input type="number" id="r-cplc" placeholder="0" min="0" oninput="saveReportInputs()"></div>
+      <div><span class="fl">Jobs booked</span><input type="number" id="r-jobs" placeholder="0" min="0" oninput="saveReportInputs()"></div>
+      <div><span class="fl">Instagram posts</span><input type="number" id="r-posts" placeholder="0" min="0" oninput="saveReportInputs()"></div>
+      <div><span class="fl">Platform(s)</span><input type="text" id="r-platform" placeholder="Instagram, TikTok..." oninput="saveReportInputs()"></div>
+      <div><span class="fl">Likes</span><input type="number" id="r-likes" placeholder="0" min="0" oninput="saveReportInputs()"></div>
+      <div><span class="fl">Comments</span><input type="number" id="r-comments" placeholder="0" min="0" oninput="saveReportInputs()"></div>
+      <div><span class="fl">Shares</span><input type="number" id="r-shares" placeholder="0" min="0" oninput="saveReportInputs()"></div>
+      <div><span class="fl">Views / Reach</span><input type="number" id="r-views" placeholder="0" min="0" oninput="saveReportInputs()"></div>
+    </div>
+    <span class="fl">Top performing campaign</span>
+    <input type="text" id="r-top" placeholder="e.g. Oahu detailing — $8 CPL, 3 bookings" oninput="saveReportInputs()">
+  </div>
+
   <div id="report-body"></div>
+  <div class="sl">Ad spend — log on Friday</div>
+  <div class="card card-sm" style="margin-bottom:10px">
+    <div style="font-size:11px;font-family:var(--mono);color:var(--text3);margin-bottom:12px">Log once per week when building the report. Auto-saves.</div>
+    <div class="g3" style="gap:10px">
+      <div><span class="fl">Google Ads ($)</span><input type="number" id="r-google" placeholder="0" min="0" oninput="saveReportSpend()"></div>
+      <div><span class="fl">Meta Ads ($)</span><input type="number" id="r-meta" placeholder="0" min="0" oninput="saveReportSpend()"></div>
+      <div><span class="fl">Yelp Ads ($)</span><input type="number" id="r-yelp" placeholder="0" min="0" oninput="saveReportSpend()"></div>
+    </div>
+  </div>
+  <div class="sl">Social media — log on Friday</div>
+  <div class="card card-sm" style="margin-bottom:10px">
+    <div style="font-size:11px;font-family:var(--mono);color:var(--text3);margin-bottom:12px">6 numbers, 30 seconds. Auto-saves for the week.</div>
+    <div class="g3" style="gap:10px">
+      <div><span class="fl">Posts published</span><input type="number" id="sm-posts" placeholder="0" min="0" oninput="saveReportSocial()"></div>
+      <div><span class="fl">Platform(s)</span><input type="text" id="sm-platform" placeholder="Instagram, TikTok..." oninput="saveReportSocial()"></div>
+      <div><span class="fl">Likes</span><input type="number" id="sm-likes" placeholder="0" min="0" oninput="saveReportSocial()"></div>
+      <div><span class="fl">Comments</span><input type="number" id="sm-comments" placeholder="0" min="0" oninput="saveReportSocial()"></div>
+      <div><span class="fl">Shares</span><input type="number" id="sm-shares" placeholder="0" min="0" oninput="saveReportSocial()"></div>
+      <div><span class="fl">Views / Reach</span><input type="number" id="sm-views" placeholder="0" min="0" oninput="saveReportSocial()"></div>
+    </div>
+  </div>
   <div class="sl">Executive summary</div>
   <div class="card">
     <span class="fl">What's working</span><textarea id="r-working" placeholder="e.g. Ceramic ad on Meta driving $8 CPL, 4 bookings this week..."></textarea>
@@ -1182,7 +1224,7 @@ function nav(p){
   if(p==='kpi'){renderKPIs();renderKPILog();updateGoalBar();renderPayrollTiles();}
   if(p==='pipeline'){renderPipeline();checkStaleLeads();calcResponseMetrics();}
   if(p==='profit')  renderProfit();
-  if(p==='report')  buildReport();
+  if(p==='report')  { buildReport(); setTimeout(loadReportInputs, 50); }
   if(p==='performance') renderPerf();
   if(p==='game') renderGame();
   if(p==='notes')   {renderNotes();updateNotesBadge();}
@@ -1884,6 +1926,7 @@ function buildReport(){
   const fmt=d=>d.toLocaleDateString([],{month:'short',day:'numeric'});
   const wkRange=fmt(wkS)+' – '+fmt(wkE);
 
+  const ri=getReportInputs();
   // ── LEADS from pipeline ──────────────────────────────────
   const wkLeads=S.leads.filter(l=>new Date(l.arrivedAt||l.date||0)>=wkS&&l.stage!=='Dead Lead');
   const totalLeads=wkLeads.length;
@@ -1900,7 +1943,12 @@ function buildReport(){
   const jobs=sum(w,'jobs');
   const rev=sum(w,'rev');
   const margin=w.length?Math.round(sum(w,'margin')/w.length):0;
-  const spend=sum(w,'spend');
+  // Ad spend — use Friday report inputs if available, fall back to KPI entries
+  const rGoogle=parseFloat((document.getElementById('r-google')||{}).value||0)||0;
+  const rMeta=parseFloat((document.getElementById('r-meta')||{}).value||0)||0;
+  const rYelp=parseFloat((document.getElementById('r-yelp')||{}).value||0)||0;
+  const reportSpend=rGoogle+rMeta+rYelp;
+  const spend=reportSpend>0?reportSpend:sum(w,'spend');
   const organic=sum(w,'organic');
   const cpld=avg(w,'cpld');const cplc=avg(w,'cplc');
   const roas=spend>0?(rev/spend).toFixed(1)+'x':'N/A';
@@ -2005,7 +2053,14 @@ function buildReport(){
     ['Profit margin',profitMargin+'%',profitMargin>=35?'g':profitMargin>=20?'a':'r'],
     ['Target margin','≥ 35%',''],
   ])+
-  (topPerf?sec('8. Top Performer',[['Campaign / driver',topPerf,'']]):'');
+  (topPerf||ri.top?sec('8. Top Performer',[['Campaign / driver',ri.top||topPerf||'—','']]):'') +
+  (ri.posts?sec('9. Social Media',[
+    ['Posts published',(ri.posts||'0')+' ('+(ri.platform||'Instagram')+')', ''],
+    ['Likes',ri.likes||'0',''],
+    ['Comments',ri.comments||'0',''],
+    ['Shares',ri.shares||'0',''],
+    ['Views / Reach',ri.views||'0',''],
+  ]):'');
 
   // Social media section with manual input
   const sm=document.getElementById('report-social-section');
@@ -2341,6 +2396,101 @@ ${new Date().toLocaleString()}`;
     +'&body='+encodeURIComponent(body);
   window.location.href=mailto;
   toast('Opening Mail app — review and hit send.');
+}
+
+// ══════════════════════════════════════════════════════════════
+// REPORT INPUTS — save/load Friday fields
+// ══════════════════════════════════════════════════════════════
+function saveReportInputs(){
+  const wk = weekStart().toDateString();
+  const data = {
+    google:   document.getElementById('r-google')  ? document.getElementById('r-google').value  : '',
+    meta:     document.getElementById('r-meta')    ? document.getElementById('r-meta').value    : '',
+    yelp:     document.getElementById('r-yelp')    ? document.getElementById('r-yelp').value    : '',
+    cpld:     document.getElementById('r-cpld')    ? document.getElementById('r-cpld').value    : '',
+    cplc:     document.getElementById('r-cplc')    ? document.getElementById('r-cplc').value    : '',
+    jobs:     document.getElementById('r-jobs')    ? document.getElementById('r-jobs').value    : '',
+    posts:    document.getElementById('r-posts')   ? document.getElementById('r-posts').value   : '',
+    platform: document.getElementById('r-platform')? document.getElementById('r-platform').value: '',
+    likes:    document.getElementById('r-likes')   ? document.getElementById('r-likes').value   : '',
+    comments: document.getElementById('r-comments')? document.getElementById('r-comments').value: '',
+    shares:   document.getElementById('r-shares')  ? document.getElementById('r-shares').value  : '',
+    views:    document.getElementById('r-views')   ? document.getElementById('r-views').value   : '',
+    top:      document.getElementById('r-top')     ? document.getElementById('r-top').value     : '',
+    working:  document.getElementById('r-working') ? document.getElementById('r-working').value : '',
+    not:      document.getElementById('r-not')     ? document.getElementById('r-not').value     : '',
+    changes:  document.getElementById('r-changes') ? document.getElementById('r-changes').value : '',
+  };
+  localStorage.setItem('pos-report-'+wk, JSON.stringify(data));
+}
+function loadReportInputs(){
+  const wk = weekStart().toDateString();
+  const saved = localStorage.getItem('pos-report-'+wk);
+  if(!saved) return;
+  const data = JSON.parse(saved);
+  const set = (id,val)=>{ const el=document.getElementById(id); if(el&&val) el.value=val; };
+  set('r-google',data.google); set('r-meta',data.meta); set('r-yelp',data.yelp);
+  set('r-cpld',data.cpld); set('r-cplc',data.cplc); set('r-jobs',data.jobs);
+  set('r-posts',data.posts); set('r-platform',data.platform); set('r-likes',data.likes);
+  set('r-comments',data.comments); set('r-shares',data.shares); set('r-views',data.views);
+  set('r-top',data.top); set('r-working',data.working);
+  set('r-not',data.not); set('r-changes',data.changes);
+}
+function getReportInputs(){
+  const wk = weekStart().toDateString();
+  const saved = localStorage.getItem('pos-report-'+wk);
+  return saved ? JSON.parse(saved) : {};
+}
+
+// ══════════════════════════════════════════════════════════════
+// REPORT SPEND + SOCIAL SAVE/LOAD
+// ══════════════════════════════════════════════════════════════
+function saveReportSpend(){
+  const wk=weekStart().toDateString();
+  const data={
+    google:document.getElementById('r-google').value||'0',
+    meta:document.getElementById('r-meta').value||'0',
+    yelp:document.getElementById('r-yelp').value||'0'
+  };
+  localStorage.setItem('pos-rspend-'+wk, JSON.stringify(data));
+  // Also update variable costs so profit calc uses these numbers
+  const el_g=document.getElementById('v-google');if(el_g)el_g.value=data.google;
+  const el_m=document.getElementById('v-meta');if(el_m)el_m.value=data.meta;
+  const el_y=document.getElementById('v-yelp');if(el_y)el_y.value=data.yelp;
+}
+function saveReportSocial(){
+  const wk=weekStart().toDateString();
+  const data={
+    posts:document.getElementById('sm-posts').value||'0',
+    platform:document.getElementById('sm-platform').value||'',
+    likes:document.getElementById('sm-likes').value||'0',
+    comments:document.getElementById('sm-comments').value||'0',
+    shares:document.getElementById('sm-shares').value||'0',
+    views:document.getElementById('sm-views').value||'0'
+  };
+  localStorage.setItem('pos-rsocial-'+wk, JSON.stringify(data));
+}
+function loadReportInputs(){
+  const wk=weekStart().toDateString();
+  // Load spend
+  try{
+    const spend=JSON.parse(localStorage.getItem('pos-rspend-'+wk)||'{}');
+    if(spend.google){const e=document.getElementById('r-google');if(e)e.value=spend.google;}
+    if(spend.meta){const e=document.getElementById('r-meta');if(e)e.value=spend.meta;}
+    if(spend.yelp){const e=document.getElementById('r-yelp');if(e)e.value=spend.yelp;}
+    // Sync to variable costs
+    if(spend.google||spend.meta||spend.yelp) saveReportSpend();
+  }catch(e){}
+  // Load social
+  try{
+    const soc=JSON.parse(localStorage.getItem('pos-rsocial-'+wk)||'{}');
+    if(soc.posts){const e=document.getElementById('sm-posts');if(e)e.value=soc.posts;}
+    if(soc.platform){const e=document.getElementById('sm-platform');if(e)e.value=soc.platform;}
+    if(soc.likes){const e=document.getElementById('sm-likes');if(e)e.value=soc.likes;}
+    if(soc.comments){const e=document.getElementById('sm-comments');if(e)e.value=soc.comments;}
+    if(soc.shares){const e=document.getElementById('sm-shares');if(e)e.value=soc.shares;}
+    if(soc.views){const e=document.getElementById('sm-views');if(e)e.value=soc.views;}
+  }catch(e){}
 }
 
 // TOAST
