@@ -1549,7 +1549,9 @@ function gasFetch(url,onSuccess,onError){
 // CLOUD SYNC
 // ══════════════════════════════════════════════════════════════
 function cloudRead(tab,cb){gasFetch(URL_SYNC+'?action=read&tab='+encodeURIComponent(tab),r=>{if(r&&r.rows)cb(r.rows);});}
+let lastCloudWrite=0;
 function cloudWrite(tab,data){
+  lastCloudWrite=Date.now();
   if(syncWritePending[tab])clearTimeout(syncWritePending[tab]);
   syncWritePending[tab]=setTimeout(()=>{
     const url=URL_SYNC+'?action=write&tab='+encodeURIComponent(tab)+'&payload='+encodeURIComponent(JSON.stringify(data));
@@ -1557,9 +1559,27 @@ function cloudWrite(tab,data){
   },800);
 }
 function cloudPullAll(){
+  // Don't pull if we wrote in the last 45 seconds — prevents overwriting pending writes
+  if(Date.now()-lastCloudWrite<45000){console.log('Skipping pull — recent write');return;}
   cloudRead('Notes',rows=>{
     if(!rows.length)return;
-    S.notes=rows.map(r=>({id:Number(r.id)||Date.now(),text:String(r.text||''),type:String(r.type||'note'),time:String(r.time||new Date().toISOString()),pinned:r.pinned==='TRUE'||r.pinned===true,done:r.done==='TRUE'||r.done===true,date:String(r.date||new Date().toDateString())})).filter(n=>n.text);
+    // Merge cloud notes with local — never delete notes that exist locally
+    // but aren't in cloud yet (they're being written)
+    const cloudNotes=rows.map(r=>({
+      id:Number(r.id)||Date.now(),
+      text:String(r.text||''),
+      type:String(r.type||'note'),
+      time:String(r.time||new Date().toISOString()),
+      pinned:r.pinned==='TRUE'||r.pinned===true,
+      done:r.done==='TRUE'||r.done===true,
+      date:String(r.date||new Date().toDateString())
+    })).filter(n=>n.text);
+    // Keep local notes that aren't in cloud yet (added in last 5 minutes)
+    const cloudIds=new Set(cloudNotes.map(n=>n.id));
+    const fiveMinAgo=Date.now()-5*60*1000;
+    const localOnly=S.notes.filter(n=>!cloudIds.has(n.id)&&new Date(n.time).getTime()>fiveMinAgo);
+    // Merge: cloud is source of truth for old notes, local wins for new ones
+    S.notes=[...cloudNotes,...localOnly];
     persist('notes');renderNotes();updateNotesBadge();
   });
   cloudRead('KPIs',rows=>{
@@ -3049,7 +3069,7 @@ function runApp(){
   // Cloud + data
   cloudPullAll();fetchSquare();autoSync();fetchJohn();fetchAmex();
   // Intervals
-  setInterval(cloudPullAll,60000);
+  setInterval(cloudPullAll,180000);
   setInterval(fetchSquare,300000);
   setInterval(autoSync,120000);
   setInterval(fetchJohn,300000);
