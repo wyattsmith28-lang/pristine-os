@@ -708,15 +708,16 @@ body { display: flex !important; flex-direction: row !important; }
   <div class="g4" id="kpi-tiles"></div>
   <div class="sl">Log today</div>
   <div class="card">
+    <div style="font-size:11px;font-family:var(--mono);color:var(--text3);background:var(--bg3);border:1px solid var(--border);border-radius:var(--rsm);padding:10px 14px;margin-bottom:12px">💡 Leads auto-count from pipeline. Log revenue + spend daily. Add leads/jobs at end of week only if needed.</div>
     <div class="g2">
-      <div><span class="fl">Leads generated</span><input type="number" id="i-leads" placeholder="0" min="0"></div>
-      <div><span class="fl">Jobs booked</span><input type="number" id="i-jobs" placeholder="0" min="0"></div>
       <div><span class="fl">Revenue ($)</span><input type="number" id="i-rev" placeholder="0" min="0"></div>
       <div><span class="fl">Profit margin (%)</span><input type="number" id="i-margin" placeholder="0" min="0" max="100"></div>
-      <div><span class="fl">Ad spend ($)</span><input type="number" id="i-spend" placeholder="0" min="0"></div>
+      <div><span class="fl">Ad spend — Google + Meta + Yelp ($)</span><input type="number" id="i-spend" placeholder="0" min="0"></div>
       <div><span class="fl">Organic leads</span><input type="number" id="i-organic" placeholder="0" min="0"></div>
       <div><span class="fl">CPL — detailing ($)</span><input type="number" id="i-cpld" placeholder="0" min="0"></div>
       <div><span class="fl">CPL — ceramic ($)</span><input type="number" id="i-cplc" placeholder="0" min="0"></div>
+      <div><span class="fl">Leads this week (end of week)</span><input type="number" id="i-leads" placeholder="auto from pipeline" min="0"></div>
+      <div><span class="fl">Jobs booked (end of week)</span><input type="number" id="i-jobs" placeholder="0" min="0"></div>
     </div>
     <span class="fl">Top performer today</span><input type="text" id="i-top" placeholder="e.g. Ceramic reveal — 3 leads at $8 CPL">
     <span class="fl">Flags / issues</span><textarea id="i-flags" placeholder="e.g. FB lead not followed up — corrected by 2pm"></textarea>
@@ -1435,7 +1436,13 @@ function getWeekRange(){
   return fmt(wkS)+' – '+fmt(wkE);
 }
 function renderKPIs(){
-  const w=wkKPIs(),leads=sum(w,'leads'),jobs=sum(w,'jobs'),rev=sum(w,'rev'),
+  // Leads come from pipeline (auto-synced), not manual KPI entries
+  const wkStart=weekStart();
+  const pipeLeads=S.leads.filter(function(l){
+    var d=new Date(l.arrivedAt||l.date||0);
+    return d>=wkStart && l.stage!=='Dead Lead';
+  }).length;
+  const w=wkKPIs(),leads=pipeLeads||sum(w,'leads'),jobs=sum(w,'jobs'),rev=sum(w,'rev'),
         margin=w.length?Math.round(sum(w,'margin')/w.length):null,
         spend=sum(w,'spend'),roas=spend>0?(rev/spend).toFixed(1):null;
   const target=LOC_TARGETS[currentLoc]||15000;
@@ -1455,7 +1462,10 @@ function renderKPIs(){
   el.innerHTML=tiles.map(t=>`<div class="kt ${t.c}"><div class="kt-l">${t.l}</div><div class="kt-v ${t.c}">${t.v}</div><div class="kt-tgt">${t.t}</div></div>`).join('');
 }
 function saveKPI(){
-  const e={date:new Date().toISOString(),loc:currentLoc,leads:+document.getElementById('i-leads').value||0,jobs:+document.getElementById('i-jobs').value||0,rev:+document.getElementById('i-rev').value||0,margin:+document.getElementById('i-margin').value||0,spend:+document.getElementById('i-spend').value||0,organic:+document.getElementById('i-organic').value||0,cpld:+document.getElementById('i-cpld').value||0,cplc:+document.getElementById('i-cplc').value||0,top:document.getElementById('i-top').value,flags:document.getElementById('i-flags').value};
+  const wkSave=weekStart();
+  const autoLeads=S.leads.filter(function(l){var d=new Date(l.arrivedAt||l.date||0);return d>=wkSave&&l.stage!=='Dead Lead';}).length;
+  const manLeads=+document.getElementById('i-leads').value||0;
+  const e={date:new Date().toISOString(),loc:currentLoc,leads:manLeads||autoLeads,jobs:+document.getElementById('i-jobs').value||0,rev:+document.getElementById('i-rev').value||0,margin:+document.getElementById('i-margin').value||0,spend:+document.getElementById('i-spend').value||0,organic:+document.getElementById('i-organic').value||0,cpld:+document.getElementById('i-cpld').value||0,cplc:+document.getElementById('i-cplc').value||0,top:document.getElementById('i-top').value,flags:document.getElementById('i-flags').value};
   S.kpis.push(e);persist('kpis');cloudWrite('KPIs',S.kpis);
   clearKPI();renderKPIs();renderKPILog();updateGoalBar();toast('Entry saved — syncing...');
 }
@@ -1869,7 +1879,160 @@ function renderJohn(){
 // REPORT
 // ══════════════════════════════════════════════════════════════
 function buildReport(){
-  const w=wkKPIs(),leads=sum(w,'leads'),jobs=sum(w,'jobs'),rev=sum(w,'rev'),
+  const wkS=weekStart();
+  const wkE=new Date(wkS);wkE.setDate(wkS.getDate()+6);
+  const fmt=d=>d.toLocaleDateString([],{month:'short',day:'numeric'});
+  const wkRange=fmt(wkS)+' – '+fmt(wkE);
+
+  // ── LEADS from pipeline ──────────────────────────────────
+  const wkLeads=S.leads.filter(l=>new Date(l.arrivedAt||l.date||0)>=wkS&&l.stage!=='Dead Lead');
+  const totalLeads=wkLeads.length;
+  // By source
+  const sourceMap={};
+  wkLeads.forEach(l=>{const s=l.source||'Other';sourceMap[s]=(sourceMap[s]||0)+1;});
+  const sourceBreakdown=Object.entries(sourceMap).sort((a,b)=>b[1]-a[1]).map(([s,c])=>`${s}: ${c}`).join(', ');
+  // By location
+  const oahuLeads=wkLeads.filter(l=>(l.location||'').toLowerCase()==='oahu'||(l.location||'').toLowerCase().includes('hawaii')).length;
+  const tucLeads=wkLeads.filter(l=>(l.location||'').toLowerCase()==='tucson'||(l.location||'').toLowerCase().includes('arizona')).length;
+
+  // ── KPI data ─────────────────────────────────────────────
+  const w=wkKPIs();
+  const jobs=sum(w,'jobs');
+  const rev=sum(w,'rev');
+  const margin=w.length?Math.round(sum(w,'margin')/w.length):0;
+  const spend=sum(w,'spend');
+  const organic=sum(w,'organic');
+  const cpld=avg(w,'cpld');const cplc=avg(w,'cplc');
+  const roas=spend>0?(rev/spend).toFixed(1)+'x':'N/A';
+  const avgTicket=jobs>0?Math.round(rev/jobs):0;
+
+  // ── Square revenue by location ────────────────────────────
+  const oahuRev=squareByLoc.oahu||0;
+  const tucRev=squareByLoc.tucson||0;
+  const sqRevEl=document.getElementById('sq-rev');
+  const sqRevTotal=sqRevEl?parseFloat(sqRevEl.textContent.replace(/[$,]/g,''))||rev:rev;
+  const totalRev=Math.max(sqRevTotal,rev);
+  const avgTktEl=document.getElementById('sq-avg');
+  const sqAvgTicket=avgTktEl?parseFloat(avgTktEl.textContent.replace(/[$,]/g,''))||avgTicket:avgTicket;
+  const jobsEl=document.getElementById('sq-jobs');
+  const sqJobs=jobsEl?parseInt(jobsEl.textContent)||jobs:jobs;
+
+  // ── John's sales data ─────────────────────────────────────
+  const johnWk=johnData.filter(r=>{const d=parseRowDate(r.date);return d&&d>=wkS;});
+  const upsells=johnWk.filter(r=>(r.source||'').toLowerCase().includes('upsell')).length;
+  const leadBookings=johnWk.filter(r=>!(r.source||'').toLowerCase().includes('upsell')).length;
+  const johnWkPayout=johnWk.reduce((a,b)=>a+b.payout,0);
+
+  // ── Payroll ───────────────────────────────────────────────
+  const payrollTotal=(squarePayroll.total||0)+1292.50;
+  const payrollOahu=(squarePayroll.oahu||0)+1292.50;
+  const payrollTuc=squarePayroll.tucson||0;
+
+  // ── Amex card spend ───────────────────────────────────────
+  const oahuAmex=weeklyAmex(amexOahu).reduce((a,b)=>a+(parseFloat(b.amount||0)),0);
+  const tucAmex=weeklyAmex(amexTucson).reduce((a,b)=>a+(parseFloat(b.amount||0)),0);
+  const totalAmex=oahuAmex+tucAmex;
+  const wasteAmex=[...weeklyAmex(amexOahu),...weeklyAmex(amexTucson)].filter(r=>(r.essential||r.Essential||'').toString().toLowerCase()==='no').reduce((a,b)=>a+(parseFloat(b.amount||0)),0);
+
+  // ── Fixed + variable costs ────────────────────────────────
+  const fixedWk=weeklyFixed(currentLoc);
+  const vc=getVarCosts();
+  const varTotal=vc.google+vc.meta+(vc.yelp||0)+vc.chem+vc.payroll+vc.twilio+vc.gas+vc.equip+vc.other;
+  const netProfit=totalRev-fixedWk-varTotal-payrollTotal-totalAmex;
+  const profitMargin=totalRev>0?Math.round(netProfit/totalRev*100):margin;
+
+  // ── Top performer from KPI notes ──────────────────────────
+  const topPerf=w.length&&w[w.length-1].top?w[w.length-1].top:'';
+  const flags=w.filter(k=>k.flags).map(k=>k.flags).join('; ');
+
+  // ── BUILD REPORT HTML ─────────────────────────────────────
+  const el=document.getElementById('report-body');if(!el)return;
+  const sec=(t,lines)=>`<div class="rs"><div class="rs-t">${t}</div>${lines.map(([l,v,c])=>`<div class="rl"><span>${l}</span><span class="rv ${c||''}">${v}</span></div>`).join('')}</div>`;
+  const locLabel=currentLoc==='both'?'Oahu + Tucson':currentLoc==='oahu'?'Oahu':'Tucson';
+
+  el.innerHTML=`<div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:8px">
+    <div style="font-family:var(--serif);font-size:20px">${wkRange} Weekly Report</div>
+    <div style="font-size:10px;font-family:var(--mono);color:var(--text3);background:var(--bg3);padding:5px 12px;border-radius:99px">${locLabel}</div>
+  </div>`+
+  sec('1. Lead Generation',[
+    ['Lead sources',sourceBreakdown||'No leads this week',''],
+    ['Total leads',totalLeads,totalLeads>=10?'g':totalLeads>0?'a':'r'],
+    ['Oahu leads',oahuLeads||'—',''],
+    ['Tucson leads',tucLeads||'—',''],
+    ['Organic leads',organic,''],
+    ['Target','10–20 leads / week',''],
+  ])+
+  sec('2. Cost Per Lead',[
+    ['CPL — Detailing',cpld?'$'+cpld:'No data logged',cpld&&cpld<=10?'g':cpld?'r':''],
+    ['CPL — Ceramic',cplc?'$'+cplc:'No data logged',cplc&&cplc<=15?'g':cplc?'r':''],
+    ['Target detailing','≤ $10 CPL',''],
+    ['Target ceramic','≤ $15 CPL',''],
+  ])+
+  sec('3. Sales Performance',[
+    ['Jobs booked / completed',sqJobs,sqJobs>=3?'g':sqJobs>0?'a':'r'],
+    ['Upsells (John)',upsells,''],
+    ['Lead bookings (John)',leadBookings,''],
+    ['Average ticket','$'+sqAvgTicket.toLocaleString(),sqAvgTicket>=400?'g':sqAvgTicket>0?'a':'r'],
+  ])+
+  sec('4. Revenue',[
+    ['Total revenue','$'+Math.round(totalRev).toLocaleString(),totalRev>=(LOC_TARGETS[currentLoc]||15000)?'g':totalRev>=12000?'a':'r'],
+    ['Oahu revenue',oahuRev>0?'$'+Math.round(oahuRev).toLocaleString():'From Square',''],
+    ['Tucson revenue',tucRev>0?'$'+Math.round(tucRev).toLocaleString():'From Square',''],
+    ['Target','$'+(LOC_TARGETS[currentLoc]||15000).toLocaleString()+' / week',''],
+    ['Status',totalRev>=(LOC_TARGETS[currentLoc]||15000)?'✓ Target hit':'⚠ Below target',totalRev>=(LOC_TARGETS[currentLoc]||15000)?'g':'r'],
+  ])+
+  sec('5. Ad Spend vs Revenue',[
+    ['Total ad spend','$'+spend.toLocaleString(),''],
+    ['ROAS',roas,spend>0&&totalRev/spend>=1?'g':'r'],
+    ['Ad spend %',spend>0&&totalRev>0?Math.round(spend/totalRev*100)+'% of revenue':'—',spend>0&&totalRev>0&&spend/totalRev<=0.15?'g':'a'],
+    ['Net after ad spend','$'+Math.max(0,totalRev-spend).toLocaleString(),''],
+  ])+
+  sec('6. Payroll',[
+    ['Total payroll','$'+Math.round(payrollTotal).toLocaleString(),''],
+    ['Oahu payroll','$'+Math.round(payrollOahu).toLocaleString(),''],
+    ['Tucson payroll','$'+Math.round(payrollTuc).toLocaleString(),''],
+    ['John bonus payout (wk)','$'+johnWkPayout.toFixed(2),''],
+    ['Payroll % of revenue',totalRev>0?Math.round(payrollTotal/totalRev*100)+'%':'—',totalRev>0&&payrollTotal/totalRev<=0.35?'g':'r'],
+  ])+
+  sec('7. Profit Summary',[
+    ['Revenue','$'+Math.round(totalRev).toLocaleString(),''],
+    ['Fixed costs (weekly)','-$'+Math.round(fixedWk).toLocaleString(),''],
+    ['Variable costs','-$'+Math.round(varTotal).toLocaleString(),''],
+    ['Payroll','-$'+Math.round(payrollTotal).toLocaleString(),''],
+    ['Amex card spend','-$'+Math.round(totalAmex).toLocaleString(),''],
+    wasteAmex>0?['  ↳ Potential waste','-$'+Math.round(wasteAmex).toLocaleString(),'r']:['Amex waste','$0 — clean ✓','g'],
+    ['NET PROFIT','$'+Math.round(netProfit).toLocaleString(),netProfit>0?'g':'r'],
+    ['Profit margin',profitMargin+'%',profitMargin>=35?'g':profitMargin>=20?'a':'r'],
+    ['Target margin','≥ 35%',''],
+  ])+
+  (topPerf?sec('8. Top Performer',[['Campaign / driver',topPerf,'']]):'');
+
+  // Social media section with manual input
+  const sm=document.getElementById('report-social-section');
+  if(!sm){
+    const smDiv=document.createElement('div');smDiv.id='report-social-section';
+    smDiv.innerHTML=`<div class="sl">Social media (log manually)</div>
+    <div class="card">
+      <div class="g2">
+        <div><span class="fl">Posts published</span><input type="number" id="sm-posts" placeholder="0" min="0"></div>
+        <div><span class="fl">Platform</span><input type="text" id="sm-platform" placeholder="e.g. Instagram, TikTok"></div>
+        <div><span class="fl">Likes</span><input type="number" id="sm-likes" placeholder="0" min="0"></div>
+        <div><span class="fl">Comments</span><input type="number" id="sm-comments" placeholder="0" min="0"></div>
+        <div><span class="fl">Shares</span><input type="number" id="sm-shares" placeholder="0" min="0"></div>
+        <div><span class="fl">Views / Reach</span><input type="number" id="sm-views" placeholder="0" min="0"></div>
+      </div>
+    </div>`;
+    el.parentElement.insertBefore(smDiv,el.nextSibling);
+  }
+}
+function buildReport(){
+  // Leads come from pipeline (auto-synced), not manual KPI entries
+  const wkStart=weekStart();
+  const pipeLeads=S.leads.filter(function(l){
+    var d=new Date(l.arrivedAt||l.date||0);
+    return d>=wkStart && l.stage!=='Dead Lead';
+  }).length;
+  const w=wkKPIs(),leads=pipeLeads||sum(w,'leads'),jobs=sum(w,'jobs'),rev=sum(w,'rev'),
         margin=w.length?Math.round(sum(w,'margin')/w.length):0,spend=sum(w,'spend'),
         organic=sum(w,'organic'),roas=spend>0?(rev/spend).toFixed(1)+'x':'N/A',
         cpld=avg(w,'cpld'),cplc=avg(w,'cplc');
@@ -1893,7 +2056,95 @@ function buildReport(){
     sec('Business Health',[['Profit margin',margin+'%',margin>=35?'g':'r'],['Status',margin>=35?'On target — above 35%':'Below 35% — correction required',margin>=35?'g':'r']]);
 }
 function copyReport(){
-  const w=wkKPIs(),rev=sum(w,'rev'),spend=sum(w,'spend'),leads=sum(w,'leads'),jobs=sum(w,'jobs'),margin=w.length?Math.round(sum(w,'margin')/w.length):0,roas=spend>0?(rev/spend).toFixed(1)+'x':'N/A';
+  const wkS=weekStart();
+  const wkE=new Date(wkS);wkE.setDate(wkS.getDate()+6);
+  const fmt=d=>d.toLocaleDateString([],{month:'short',day:'numeric'});
+  const wkRange=fmt(wkS)+' – '+fmt(wkE);
+  const wkLeads=S.leads.filter(l=>new Date(l.arrivedAt||l.date||0)>=wkS&&l.stage!=='Dead Lead');
+  const totalLeads=wkLeads.length;
+  const sourceMap={};wkLeads.forEach(l=>{const s=l.source||'Other';sourceMap[s]=(sourceMap[s]||0)+1;});
+  const srcStr=Object.entries(sourceMap).sort((a,b)=>b[1]-a[1]).map(([s,c])=>s+': '+c).join(', ');
+  const w=wkKPIs(),rev=sum(w,'rev'),spend=sum(w,'spend'),margin=w.length?Math.round(sum(w,'margin')/w.length):0;
+  const sqRevEl=document.getElementById('sq-rev');
+  const totalRev=Math.max(sqRevEl?parseFloat(sqRevEl.textContent.replace(/[$,]/g,''))||rev:rev,rev);
+  const sqJobsEl=document.getElementById('sq-jobs');const sqJobs=sqJobsEl?parseInt(sqJobsEl.textContent)||0:0;
+  const sqAvgEl=document.getElementById('sq-avg');const sqAvg=sqAvgEl?parseFloat(sqAvgEl.textContent.replace(/[$,]/g,''))||0:0;
+  const roas=spend>0?(totalRev/spend).toFixed(1)+'x':'N/A';
+  const johnWk=johnData.filter(r=>{const d=parseRowDate(r.date);return d&&d>=wkS;});
+  const upsells=johnWk.filter(r=>(r.source||'').toLowerCase().includes('upsell')).length;
+  const payrollTotal=(squarePayroll.total||0)+1292.50;
+  const fixedWk=weeklyFixed(currentLoc);
+  const vc=getVarCosts();const varTotal=vc.google+vc.meta+(vc.yelp||0)+vc.chem+vc.payroll+vc.twilio+vc.gas+vc.equip+vc.other;
+  const oahuAmex=weeklyAmex(amexOahu).reduce((a,b)=>a+(parseFloat(b.amount||0)),0);
+  const tucAmex=weeklyAmex(amexTucson).reduce((a,b)=>a+(parseFloat(b.amount||0)),0);
+  const netProfit=totalRev-fixedWk-varTotal-payrollTotal-oahuAmex-tucAmex;
+  const profitMargin=totalRev>0?Math.round(netProfit/totalRev*100):margin;
+  const cpld=avg(w,'cpld'),cplc=avg(w,'cplc');
+  const smPosts=document.getElementById('sm-posts');const smPlat=document.getElementById('sm-platform');
+  const smLikes=document.getElementById('sm-likes');const smViews=document.getElementById('sm-views');
+  const locLabel=currentLoc==='both'?'Oahu + Tucson':currentLoc==='oahu'?'Oahu':'Tucson';
+  const txt=`WEEKLY REPORT — PRISTINE AUTO DETAIL
+${locLabel.toUpperCase()} | ${wkRange}
+
+━━ 1. LEAD GENERATION ━━
+Lead sources: ${srcStr||'No data'}
+Total leads: ${totalLeads} ${totalLeads>=10?'✓':'⚠ Below target'}
+Organic leads: ${sum(w,'organic')}
+Target: 10–20 leads / week
+
+━━ 2. COST PER LEAD ━━
+CPL — Detailing: ${cpld?'$'+cpld:'No data'}  (target ≤ $10)
+CPL — Ceramic: ${cplc?'$'+cplc:'No data'}  (target ≤ $15)
+
+━━ 3. SALES PERFORMANCE ━━
+Jobs booked / completed: ${sqJobs}
+Upsells (John): ${upsells}
+Lead bookings (John): ${johnWk.length-upsells}
+Average ticket: $${sqAvg.toLocaleString()}
+
+━━ 4. REVENUE ━━
+Total revenue: $${Math.round(totalRev).toLocaleString()} ${totalRev>=(LOC_TARGETS[currentLoc]||15000)?'✓ TARGET HIT':'⚠ Below target'}
+Oahu: $${Math.round(squareByLoc.oahu||0).toLocaleString()} | Tucson: $${Math.round(squareByLoc.tucson||0).toLocaleString()}
+Target: $${(LOC_TARGETS[currentLoc]||15000).toLocaleString()} / week
+
+━━ 5. AD SPEND VS REVENUE ━━
+Total ad spend: $${spend.toLocaleString()}
+ROAS: ${roas}
+Ad spend %: ${spend>0&&totalRev>0?Math.round(spend/totalRev*100)+'%':'—'} of revenue
+
+━━ 6. PAYROLL ━━
+Total payroll: $${Math.round(payrollTotal).toLocaleString()}
+John bonus (week): $${johnWk.reduce((a,b)=>a+b.payout,0).toFixed(2)}
+Payroll %: ${totalRev>0?Math.round(payrollTotal/totalRev*100)+'%':'—'} of revenue
+
+━━ 7. PROFIT SUMMARY ━━
+Revenue:          $${Math.round(totalRev).toLocaleString()}
+Fixed costs:     -$${Math.round(fixedWk).toLocaleString()}
+Variable costs:  -$${Math.round(varTotal).toLocaleString()}
+Payroll:         -$${Math.round(payrollTotal).toLocaleString()}
+Card spend:      -$${Math.round(oahuAmex+tucAmex).toLocaleString()}
+NET PROFIT:       $${Math.round(netProfit).toLocaleString()} ${netProfit>0?'✓':'⚠'}
+Profit margin:    ${profitMargin}% ${profitMargin>=35?'✓':'⚠ Below 35% target'}
+
+━━ 8. SOCIAL MEDIA ━━
+Posts: ${smPosts&&smPosts.value?smPosts.value:0} (${smPlat&&smPlat.value?smPlat.value:'platform not logged'})
+Likes: ${smLikes&&smLikes.value?smLikes.value:0} | Views: ${smViews&&smViews.value?smViews.value:0}
+
+━━ EXECUTIVE SUMMARY ━━
+What's working:
+${document.getElementById('r-working').value||'[Not filled in]'}
+
+What's not working:
+${document.getElementById('r-not').value||'[Not filled in]'}
+
+Immediate changes:
+${document.getElementById('r-changes').value||'[Not filled in]'}`;
+  navigator.clipboard.writeText(txt).then(()=>toast('Report copied.')).catch(()=>toast('Copy manually.'));
+}
+function copyReport(){
+  const wkStart2=weekStart();
+  const pipeLeads2=S.leads.filter(function(l){var d=new Date(l.arrivedAt||l.date||0);return d>=wkStart2&&l.stage!=='Dead Lead';}).length;
+  const w=wkKPIs(),rev=sum(w,'rev'),spend=sum(w,'spend'),leads=pipeLeads2||sum(w,'leads'),jobs=sum(w,'jobs'),margin=w.length?Math.round(sum(w,'margin')/w.length):0,roas=spend>0?(rev/spend).toFixed(1)+'x':'N/A';
   const wk=weekStart();const johnWk=johnData.filter(r=>{const d=parseRowDate(r.date);return d&&d>=wk;});
   const vc=getVarCosts();const totalVar=vc.google+vc.meta+vc.chem+vc.payroll+vc.twilio+vc.gas+vc.equip+vc.other;
   const fixedWk=weeklyFixed(currentLoc);
@@ -1905,7 +2156,9 @@ function copyReport(){
 }
 function exportPDF(){
   buildReport();
-  const w=wkKPIs(),rev=sum(w,'rev'),spend=sum(w,'spend'),leads=sum(w,'leads'),jobs=sum(w,'jobs'),margin=w.length?Math.round(sum(w,'margin')/w.length):0;
+  const wkStart2=weekStart();
+  const pipeLeads2=S.leads.filter(function(l){var d=new Date(l.arrivedAt||l.date||0);return d>=wkStart2&&l.stage!=='Dead Lead';}).length;
+  const w=wkKPIs(),rev=sum(w,'rev'),spend=sum(w,'spend'),leads=pipeLeads2||sum(w,'leads'),jobs=sum(w,'jobs'),margin=w.length?Math.round(sum(w,'margin')/w.length):0;
   const vc=getVarCosts();const totalVar=vc.google+vc.meta+vc.chem+vc.payroll+vc.twilio+vc.gas+vc.equip+vc.other;
   const fixedWk=weeklyFixed(currentLoc);
   const oahuWk=weeklyAmex(amexOahu);const tucWk=weeklyAmex(amexTucson);
@@ -1994,7 +2247,9 @@ function renderResponseTimebar(){
 // ══════════════════════════════════════════════════════════════
 function emailReport(){
   buildReport();
-  const w=wkKPIs(),rev=sum(w,'rev'),spend=sum(w,'spend'),leads=sum(w,'leads'),
+  const wkStart2=weekStart();
+  const pipeLeads2=S.leads.filter(function(l){var d=new Date(l.arrivedAt||l.date||0);return d>=wkStart2&&l.stage!=='Dead Lead';}).length;
+  const w=wkKPIs(),rev=sum(w,'rev'),spend=sum(w,'spend'),leads=pipeLeads2||sum(w,'leads'),
         jobs=sum(w,'jobs'),margin=w.length?Math.round(sum(w,'margin')/w.length):0;
   const sqEl=document.getElementById('sq-rev');
   const sqRev=sqEl?parseFloat(sqEl.textContent.replace(/[$,]/g,''))||0:0;
