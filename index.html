@@ -2244,12 +2244,19 @@ function autoSync(){
 // PAYROLL TILES
 // ══════════════════════════════════════════════════════════════
 function renderPayrollTiles(){
-  // Add Wyatt flat salary to payroll
+  // Correct employee locations before calculating payroll splits
+  const TUCSON_EMP = ['lazaro','matt','alejandro','alexjandro'];
+  let correctedOahu=0, correctedTucson=0;
+  (squarePayroll.employees||[]).forEach(e=>{
+    const nm=e.name.toLowerCase();
+    if(TUCSON_EMP.some(t=>nm.includes(t))) correctedTucson+=e.earned;
+    else correctedOahu+=e.earned;
+  });
   const wyattWeekly = 1292.50;
   const pr = {
     total:     squarePayroll.total + wyattWeekly,
-    oahu:      squarePayroll.oahu  + wyattWeekly, // Wyatt works both but salary counted once under oahu
-    tucson:    squarePayroll.tucson,
+    oahu:      (correctedOahu||squarePayroll.oahu)  + wyattWeekly,
+    tucson:    correctedTucson||squarePayroll.tucson,
     employees: squarePayroll.employees,
     shiftsFound: squarePayroll.shiftsFound
   };
@@ -2281,7 +2288,15 @@ function renderPayrollTiles(){
 }
 
 function renderEmpBreakdown(){
-  const emps = squarePayroll.employees || [];
+  const TUCSON_EMPLOYEES = ['lazaro','matt','alejandro','alexjandro'];
+  const OAHU_EMPLOYEES   = ['chad','alex','kelby','john'];
+  // Correct locations from Square which sometimes assigns wrong location
+  const emps = (squarePayroll.employees || []).map(e=>{
+    const nm=e.name.toLowerCase();
+    if(TUCSON_EMPLOYEES.some(t=>nm.includes(t))) return {...e,location:'tucson'};
+    if(OAHU_EMPLOYEES.some(t=>nm.includes(t)))   return {...e,location:'oahu'};
+    return e;
+  });
   const sl = document.getElementById('emp-breakdown-sl');
   const el = document.getElementById('emp-breakdown');
   if(!el) return;
@@ -2370,7 +2385,7 @@ function fetchSquare(){
         const weStr=we.toLocaleDateString([],{month:'short',day:'numeric',timeZone:'Pacific/Honolulu'});
         const range=wsStr+' – '+weStr;
         const sql=document.getElementById('sq-week-label');if(sql)sql.textContent='Square — '+range+' (live)';
-        const prl=document.getElementById('pr-week-label');if(prl)prl.textContent='Payroll vs revenue — '+range;
+        const prl=document.getElementById('pr-week-label');if(prl)prl.innerHTML='Payroll vs revenue &mdash; '+range;
         const esl=document.getElementById('emp-breakdown-sl');if(esl&&esl.style.display!=='none')esl.textContent='Employee hours & pay — '+range;
       }
       if(d.payroll)squarePayroll=d.payroll;
@@ -2378,7 +2393,7 @@ function fetchSquare(){
       // Update all week range labels
       const range=getWeekRange();
       const sql=document.getElementById('sq-week-label');if(sql)sql.textContent='Square — '+range+' (live)';
-      const prl=document.getElementById('pr-week-label');if(prl)prl.textContent='Payroll vs revenue — '+range;
+      const prl=document.getElementById('pr-week-label');if(prl)prl.innerHTML='Payroll vs revenue &mdash; '+range;
       const esl=document.getElementById('emp-breakdown-sl');if(esl&&esl.style.display!=='none')esl.textContent='Employee hours & pay — '+range;
     }catch(e){console.error('Square parse error:',e);if(statusEl)statusEl.textContent='Sync error';setDot('sq-dot','err');}
   },function(e){console.error('Square fetch failed:',e);if(statusEl)statusEl.textContent='Offline';setDot('sq-dot','err');});
