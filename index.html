@@ -2337,14 +2337,29 @@ function fetchSquare(){
   const statusEl=document.getElementById('square-status');setDot('sq-dot','loading');
   gasFetch(URL_SQUARE,function(d){
     try{
-      const rev=d.weekRevenue||0,avgT=d.avgTicket||0,jobs=d.totalTickets||0,gap=Math.max(0,(LOC_TARGETS[currentLoc]||15000)-rev);
-      document.getElementById('sq-rev').textContent='$'+Math.round(rev).toLocaleString();
-      document.getElementById('sq-avg').textContent='$'+Math.round(avgT).toLocaleString();
-      document.getElementById('sq-jobs').textContent=jobs;
-      document.getElementById('sq-gap').textContent=gap>0?'$'+Math.round(gap).toLocaleString():'✓ Hit';
-      const rt=document.getElementById('sq-rev').parentElement;rt.className='kt '+(rev>=(LOC_TARGETS[currentLoc]||15000)?'g':rev>=(LOC_TARGETS[currentLoc]||15000)*.8?'a':'r');
-      const heroRevEl=document.getElementById('sq-rev');
-      if(heroRevEl){heroRevEl.className='hero-rev '+(rev>=target?'g':rev>=target*.8?'a':'r');}
+      // Use location-filtered revenue
+      const totalRev=d.weekRevenue||0;
+      const byLoc=d.byLocation||{oahu:0,tucson:0};
+      const rev=currentLoc==='oahu'?byLoc.oahu:currentLoc==='tucson'?byLoc.tucson:totalRev;
+      const avgT=d.avgTicket||0,jobs=d.totalTickets||0;
+      const target=LOC_TARGETS[currentLoc]||15000;
+      const gap=Math.max(0,target-rev);
+      // Update hero elements safely
+      const sqRevEl=document.getElementById('sq-rev');
+      if(sqRevEl){
+        sqRevEl.textContent='$'+Math.round(rev).toLocaleString();
+        sqRevEl.className='hero-rev '+(rev>=target?'g':rev>=target*.8?'a':'r');
+      }
+      const sqGapEl=document.getElementById('sq-gap');
+      if(sqGapEl)sqGapEl.textContent=gap>0?'$'+Math.round(gap).toLocaleString():'✓ Hit';
+      // Badges (sq-jobs-badge, sq-avg-badge)
+      const sqJobsBadge=document.getElementById('sq-jobs-badge');
+      if(sqJobsBadge)sqJobsBadge.textContent=jobs+' jobs';
+      const sqAvgBadge=document.getElementById('sq-avg-badge');
+      if(sqAvgBadge)sqAvgBadge.textContent='$'+Math.round(avgT).toLocaleString()+' avg ticket';
+      // Keep legacy IDs working for anything that reads them
+      const sqAvgEl=document.getElementById('sq-avg');if(sqAvgEl)sqAvgEl.textContent='$'+Math.round(avgT).toLocaleString();
+      const sqJobsEl=document.getElementById('sq-jobs');if(sqJobsEl)sqJobsEl.textContent=jobs;
       if(statusEl)statusEl.textContent='Synced '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
       setDot('sq-dot','ok');if(d.byDay)squareByDay=d.byDay;
       if(d.byLocation)squareByLoc=d.byLocation;
