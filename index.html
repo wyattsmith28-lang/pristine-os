@@ -869,6 +869,72 @@ textarea{resize:vertical;min-height:76px;line-height:1.6}
   .achievements-grid{grid-template-columns:1fr 1fr}
 }
 
+
+/* ══ SKINS ══════════════════════════════════════════════════ */
+/* Gold skin — hit $15k */
+body.skin-gold{
+  --bg:#0c0a00;--bg1:#110e00;--bg2:#1a1500;--bg3:#221c00;--bg4:#2a2400;--bg5:#322c00;
+  --border:rgba(200,168,74,.08);--border2:rgba(200,168,74,.16);--border3:rgba(200,168,74,.28);
+  --text:#fff8e0;--text2:rgba(230,192,96,.7);--text3:rgba(200,168,74,.4);--text4:rgba(200,168,74,.2);
+  --gold:#ffd700;--gold2:#ffe44d;--gold3:#ffed80;
+  --gold-lt:rgba(255,215,0,.1);--gold-mid:rgba(255,215,0,.22);
+  --green:#ffd700;--green2:#ffe44d;--green-lt:rgba(255,215,0,.1);
+}
+body.skin-gold .goal-fill{background:linear-gradient(90deg,#8b6914,#c8a84a,#ffd700)!important}
+body.skin-gold .hero-card::before{background:linear-gradient(90deg,transparent,#ffd700 40%,#ffe44d 60%,transparent)!important}
+body.skin-gold .loc-btn.oahu.active{background:rgba(255,215,0,.12)!important;border-color:rgba(255,215,0,.3)!important;color:#ffd700!important}
+
+/* Inferno skin — hit $20k */
+body.skin-inferno{
+  --bg:#0a0000;--bg1:#110000;--bg2:#1a0500;--bg3:#220800;--bg4:#2a0c00;--bg5:#331000;
+  --border:rgba(200,50,20,.08);--border2:rgba(200,50,20,.16);--border3:rgba(200,50,20,.28);
+  --text:#fff0eb;--text2:rgba(255,120,80,.7);--text3:rgba(200,80,40,.4);--text4:rgba(200,80,40,.2);
+  --gold:#ff6b35;--gold2:#ff8c5a;--gold3:#ffaa80;
+  --gold-lt:rgba(255,107,53,.1);--gold-mid:rgba(255,107,53,.22);
+  --green:#ff6b35;--green2:#ff8c5a;--green-lt:rgba(255,107,53,.1);
+}
+body.skin-inferno .goal-fill{background:linear-gradient(90deg,#8b0000,#cc2200,#ff4500,#ff8c00)!important}
+body.skin-inferno .hero-card::before{background:linear-gradient(90deg,transparent,#ff4500 40%,#ff8c00 60%,transparent)!important}
+body.skin-inferno .loc-btn.oahu.active{background:rgba(255,107,53,.12)!important;border-color:rgba(255,107,53,.3)!important;color:#ff6b35!important}
+
+/* Blackout skin — both locations hit target */
+body.skin-blackout{
+  --bg:#000;--bg1:#050505;--bg2:#080808;--bg3:#0d0d0d;--bg4:#121212;--bg5:#181818;
+  --border:rgba(255,255,255,.04);--border2:rgba(255,255,255,.08);--border3:rgba(255,255,255,.15);
+  --text:#fff;--text2:rgba(255,255,255,.5);--text3:rgba(255,255,255,.2);--text4:rgba(255,255,255,.08);
+  --gold:#fff;--gold2:#e0e0e0;--gold3:#c8c8c8;
+  --gold-lt:rgba(255,255,255,.06);--gold-mid:rgba(255,255,255,.12);
+  --green:#fff;--green2:#e0e0e0;--green-lt:rgba(255,255,255,.06);
+}
+body.skin-blackout .goal-fill{background:linear-gradient(90deg,#222,#666,#fff)!important}
+body.skin-blackout .hero-card::before{background:linear-gradient(90deg,transparent,rgba(255,255,255,.3) 40%,rgba(255,255,255,.5) 60%,transparent)!important}
+body.skin-blackout .hero-rev{color:#fff!important}
+body.skin-blackout .loc-btn.both.active{background:rgba(255,255,255,.08)!important;border-color:rgba(255,255,255,.2)!important;color:#fff!important}
+
+/* Ocean skin — Oahu 5 weeks straight */
+body.skin-ocean{
+  --bg:#00080f;--bg1:#000d18;--bg2:#001525;--bg3:#001e30;--bg4:#00253a;--bg5:#002d45;
+  --border:rgba(0,120,200,.08);--border2:rgba(0,120,200,.16);--border3:rgba(0,150,220,.28);
+  --text:#e0f4ff;--text2:rgba(0,180,255,.65);--text3:rgba(0,150,220,.38);--text4:rgba(0,120,200,.18);
+  --gold:#00cfff;--gold2:#33dbff;--gold3:#66e6ff;
+  --gold-lt:rgba(0,207,255,.08);--gold-mid:rgba(0,207,255,.18);
+  --green:#00cfff;--green2:#33dbff;--green-lt:rgba(0,207,255,.08);
+}
+body.skin-ocean .goal-fill{background:linear-gradient(90deg,#003366,#0077cc,#00cfff)!important}
+body.skin-ocean .hero-card::before{background:linear-gradient(90deg,transparent,#0077cc 40%,#00cfff 60%,transparent)!important}
+body.skin-ocean .loc-btn.oahu.active{background:rgba(0,207,255,.12)!important;border-color:rgba(0,207,255,.3)!important;color:#00cfff!important}
+
+/* Diamond skin — 3 weeks straight */
+body.skin-diamond{
+  --bg:#070a10;--bg1:#0a0e18;--bg2:#0d1220;--bg3:#101828;--bg4:#141e32;--bg5:#18243c;
+  --border:rgba(140,180,255,.07);--border2:rgba(140,180,255,.14);--border3:rgba(140,180,255,.25);
+  --text:#eef4ff;--text2:rgba(180,210,255,.6);--text3:rgba(140,180,255,.35);--text4:rgba(140,180,255,.15);
+  --gold:#c8daff;--gold2:#dce8ff;--gold3:#eef4ff;
+  --gold-lt:rgba(200,218,255,.07);--gold-mid:rgba(200,218,255,.15);
+  --green:#c8daff;--green2:#dce8ff;--green-lt:rgba(200,218,255,.07);
+}
+body.skin-diamond .goal-fill{background:linear-gradient(90deg,#1a2a5a,#4a7acc,#c8daff)!important}
+body.skin-diamond .hero-card::before{background:linear-gradient(90deg,transparent,#4a7acc 40%,#c8daff 60%,transparent)!important}
 /* ── LAYOUT OVERRIDE ────────────────────────────────────────── */
 html,body{height:100dvh!important;overflow:hidden!important}
 body{display:flex!important;flex-direction:row!important}
@@ -1166,6 +1232,8 @@ body{display:flex!important;flex-direction:row!important}
     <button class="sm-tab on" onclick="smTab('john')" id="smtab-john">John</button>
     <button class="sm-tab" onclick="smTab('chad')" id="smtab-chad">Chad</button>
     <div class="sm-sync" id="sm-sync-status">Connecting...</div>
+    <button class="btn btn-sm btn-gold" onclick="markAllPaid()" style="margin-left:6px">Mark week paid</button>
+    <button class="btn btn-sm" onclick="clearPaid()" style="opacity:.5">Clear</button>
   </div>
   <div id="sm-panel-john">
     <div class="sm-totals">
@@ -1292,6 +1360,19 @@ body{display:flex!important;flex-direction:row!important}
       <span id="rev-counter-pct">0%</span><span id="rev-counter-gap">to go</span>
     </div>
   </div>
+  <div class="sl">App skins
+    <span class="sl-action" onclick="openSkinPicker()">Change skin →</span>
+  </div>
+  <div class="game-bar" style="cursor:pointer" onclick="openSkinPicker()">
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap" id="skin-preview-row">
+      <div style="font-size:26px" id="skin-preview-icon">⬛</div>
+      <div>
+        <div style="font-size:13px;font-weight:500;color:var(--text)" id="skin-preview-name">Default skin</div>
+        <div style="font-size:10px;font-family:var(--mono);color:var(--text3)">Tap to change skin or unlock new ones</div>
+      </div>
+      <div style="margin-left:auto;font-size:11px;font-family:var(--mono);color:var(--gold)" id="skin-unlocked-count"></div>
+    </div>
+  </div>
   <div class="sl">Achievements</div>
   <div class="achievements-grid" id="achievements-grid"></div>
   <div class="sl">Leaderboard — this week</div>
@@ -1342,6 +1423,14 @@ body{display:flex!important;flex-direction:row!important}
       <button class="btn" onclick="closeModal('weekly-report')">Later</button>
       <button class="btn btn-gold" onclick="closeModal('weekly-report');nav('report')">Build report →</button>
     </div>
+  </div>
+</div>
+<div class="mo" id="mo-skin">
+  <div class="mb">
+    <div class="mb-t">🎨 App Skins</div>
+    <div class="mb-b">Unlock skins by hitting performance targets. Once unlocked, they're yours forever.</div>
+    <div id="skin-picker" style="display:flex;flex-direction:column;gap:5px"></div>
+    <div class="mb-btns" style="margin-top:14px"><button class="btn" onclick="closeModal('skin')" style="width:100%">Close</button></div>
   </div>
 </div>
 <div class="toast" id="toast"></div>
@@ -1408,6 +1497,8 @@ const S = {
 };
 const persist = k => localStorage.setItem('pos-'+k, JSON.stringify(S[k]));
 let squareByDay={}, squareByLoc={oahu:0,tucson:0}, squarePayroll={total:0,oahu:0,tucson:0,employees:[],shiftsFound:0}, johnData=[], johnFilter='all', syncWritePending={};
+let johnPaid=JSON.parse(localStorage.getItem('pos-john-paid')||'{}');
+let johnManualPayout=JSON.parse(localStorage.getItem('pos-john-manual')||'{}');
 let currentLeadId=null;
 let amexOahu=[], amexTucson=[];
 let currentLoc = localStorage.getItem('pos-loc')||'oahu';
@@ -2256,14 +2347,14 @@ function fetchSquare(){
         const esl=document.getElementById('emp-breakdown-sl');if(esl&&esl.style.display!=='none')esl.textContent='Employee hours & pay — '+range;
       }
       if(d.payroll)squarePayroll=d.payroll;
-      updateGoalBar();renderPayrollTiles();if(document.getElementById('page-game').classList.contains('on'))renderGame();
+      updateGoalBar();renderPayrollTiles();checkSkinUnlocks();updateSkinPreview();const pg=document.getElementById('page-game');if(pg&&pg.classList.contains('on'))renderGame();
       // Update all week range labels
       const range=getWeekRange();
       const sql=document.getElementById('sq-week-label');if(sql)sql.textContent='Square — '+range+' (live)';
       const prl=document.getElementById('pr-week-label');if(prl)prl.textContent='Payroll vs revenue — '+range;
       const esl=document.getElementById('emp-breakdown-sl');if(esl&&esl.style.display!=='none')esl.textContent='Employee hours & pay — '+range;
-    }catch(e){if(statusEl)statusEl.textContent='Error';setDot('sq-dot','err');}
-  },function(){if(statusEl)statusEl.textContent='Offline';setDot('sq-dot','err');});
+    }catch(e){console.error('Square parse error:',e);if(statusEl)statusEl.textContent='Sync error';setDot('sq-dot','err');}
+  },function(e){console.error('Square fetch failed:',e);if(statusEl)statusEl.textContent='Offline';setDot('sq-dot','err');});
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -2314,12 +2405,59 @@ function smTab(who){document.querySelectorAll('.sm-tab').forEach(t=>t.classList.
 function smFilter(f){johnFilter=f;document.querySelectorAll('.sm-filt').forEach(el=>el.classList.remove('on'));document.getElementById('jf-'+f).classList.add('on');renderJohn();}
 function statusCls(s){const sl=(s||'').toLowerCase();if(sl.includes('paid')||sl.includes('complete'))return'st-paid';if(sl.includes('book'))return'st-booked';if(sl.includes('no show'))return'st-noshow';return'st-other';}
 function sourceCls(s){return(s||'').toLowerCase().includes('upsell')?'src-upsell':'src-lead';}
+function togglePaid(name,date,amount){
+  const key=name+'|'+date+'|'+amount;
+  johnPaid[key]=!johnPaid[key];
+  localStorage.setItem('pos-john-paid',JSON.stringify(johnPaid));
+  renderJohn();
+  toast(johnPaid[key]?'✓ Marked as paid':'Marked as unpaid');
+}
+
+function setManualPayout(name,date,amount,val){
+  const key=name+'|'+date+'|'+amount;
+  const num=parseFloat(val)||0;
+  johnManualPayout[key]=num;
+  localStorage.setItem('pos-john-manual',JSON.stringify(johnManualPayout));
+  renderJohn();
+}
+
+function markAllPaid(){
+  const wk=weekStart();
+  johnData.filter(r=>{const d=parseRowDate(r.date);return d&&d>=wk;}).forEach(r=>{
+    const key=r.name+'|'+r.date+'|'+r.amount;
+    johnPaid[key]=true;
+  });
+  localStorage.setItem('pos-john-paid',JSON.stringify(johnPaid));
+  renderJohn();
+  toast('All this week marked as paid');
+}
+
+function clearPaid(){
+  johnPaid={};
+  localStorage.setItem('pos-john-paid',JSON.stringify(johnPaid));
+  renderJohn();
+  toast('Cleared all paid marks');
+}
+
 function renderJohn(){
   const wk=weekStart();
-  const totalPayout=johnData.reduce((a,b)=>a+b.payout,0);
-  const weekPayout=johnData.filter(r=>{const d=parseRowDate(r.date);return d&&d>=wk;}).reduce((a,b)=>a+b.payout,0);
+  const totalPayout=johnData.reduce((a,b)=>{
+    const key=b.name+'|'+b.date+'|'+b.amount;
+    const man=johnManualPayout[key];
+    return a+(man!=null?man:b.payout);
+  },0);
+  const weekPayout=johnData.filter(r=>{const d=parseRowDate(r.date);return d&&d>=wk;}).reduce((a,b)=>{
+    const key=b.name+'|'+b.date+'|'+b.amount;
+    const man=johnManualPayout[key];
+    return a+(man!=null?man:b.payout);
+  },0);
   const upsellCount=johnData.filter(r=>(r.source||'').toLowerCase().includes('upsell')).length;
-  const unpaidTotal=johnData.filter(r=>!r.reviewed&&r.payout>0).reduce((a,b)=>a+b.payout,0);
+  const unpaidTotal=johnData.filter(r=>r.payout>0).reduce((a,b)=>{
+    const key=b.name+'|'+b.date+'|'+b.amount;
+    if(johnPaid[key])return a;
+    const manPay=johnManualPayout[key];
+    return a+(manPay!=null?manPay:b.payout);
+  },0);
   document.getElementById('john-total-payout').textContent='$'+totalPayout.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
   document.getElementById('john-week-payout').textContent='$'+weekPayout.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
   document.getElementById('john-total-jobs').textContent=johnData.length;
@@ -2332,18 +2470,44 @@ function renderJohn(){
   else if(johnFilter==='noshow')rows=rows.filter(r=>(r.status||'').toLowerCase().includes('no show'));
   else if(johnFilter==='upsell')rows=rows.filter(r=>(r.source||'').toLowerCase().includes('upsell'));
   else if(johnFilter==='unpaid')rows=rows.filter(r=>!r.reviewed&&r.payout>0);
-  rows.sort((a,b)=>{const da=parseRowDate(a.date),db=parseRowDate(b.date);if(da&&db)return db-da;return 0;});
+  // Sort newest first — sheet adds newest at bottom so we reverse
+  // Rows with dates sort by date desc, rows without dates go to bottom
+  rows.sort((a,b)=>{
+    const da=parseRowDate(a.date),db=parseRowDate(b.date);
+    if(da&&db)return db-da;  // both have dates — newest first
+    if(da&&!db)return -1;    // a has date, b doesn't — a comes first
+    if(!da&&db)return 1;     // b has date, a doesn't — b comes first
+    return 0;
+  });
   if(!rows.length){document.getElementById('john-list').innerHTML=`<tr><td colspan="9" class="sm-empty">No entries match.</td></tr>`;return;}
-  document.getElementById('john-list').innerHTML=rows.map(r=>`<tr>
-    <td class="bt-name">${r.name||'—'}</td><td class="bt-mono">${r.service||'—'}</td>
-    <td><span class="bt-status ${statusCls(r.status)}">${r.status||'—'}</span></td>
-    <td><span class="bt-src ${sourceCls(r.source)}">${r.source||'—'}</span></td>
-    <td class="r bt-mono">$${r.amount.toLocaleString()}</td>
-    <td class="r bt-mono">${r.bonusPct||'—'}</td>
-    <td class="r bt-payout">$${r.payout.toFixed(2)}</td>
-    <td class="r bt-mono">${r.date||'—'}</td>
-    <td><div class="bt-check${r.reviewed?' yes':''}">${r.reviewed?'✓':''}</div></td>
-  </tr>`).join('');
+  document.getElementById('john-list').innerHTML=rows.map((r,i)=>{
+    const paid=johnPaid[r.name+'|'+r.date+'|'+r.amount]||false;
+    const manPayout=johnManualPayout[r.name+'|'+r.date+'|'+r.amount];
+    const displayPayout=manPayout!=null?manPayout:r.payout;
+    return`<tr style="${paid?'opacity:.5;':''}">
+      <td class="bt-name">${r.name||'—'}</td>
+      <td class="bt-mono">${r.service||'—'}</td>
+      <td><span class="bt-status ${statusCls(r.status)}">${r.status||'—'}</span></td>
+      <td><span class="bt-src ${sourceCls(r.source)}">${r.source||'—'}</span></td>
+      <td class="r bt-mono">$${r.amount.toLocaleString()}</td>
+      <td class="r bt-mono">${r.bonusPct||'—'}</td>
+      <td class="r" style="min-width:90px">
+        <input type="number" value="${displayPayout.toFixed(2)}"
+          style="width:74px;padding:3px 7px;font-size:11px;font-family:var(--mono);text-align:right;border-radius:6px;height:26px;background:var(--bg3);border:1px solid var(--border);color:var(--text)"
+          onchange="setManualPayout('${r.name}','${r.date}','${r.amount}',this.value)"
+          title="Edit to override payout">
+      </td>
+      <td class="r bt-mono" style="white-space:nowrap">${(()=>{if(!r.date||r.date==='—')return'—';const d=parseRowDate(r.date);return d?d.toLocaleDateString([],{month:'short',day:'numeric',year:'numeric'}):'—';})()}</td>
+      <td style="text-align:center">
+        <div class="bt-check${paid?' yes':''}" 
+          onclick="togglePaid('${r.name}','${r.date}','${r.amount}')"
+          style="cursor:pointer;width:22px;height:22px;border-radius:6px;border:1.5px solid;display:inline-flex;align-items:center;justify-content:center;font-size:11px;transition:all .2s;border-color:${paid?'rgba(42,107,71,.4)':'var(--border2)'};background:${paid?'var(--green-lt)':'transparent'};color:${paid?'var(--green2)':'var(--text3)'}"
+          title="${paid?'Mark as unpaid':'Mark as paid'}">
+          ${paid?'✓':''}
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -2927,6 +3091,97 @@ function toast(msg){const el=document.getElementById('toast');el.textContent=msg
 
 
 // ══════════════════════════════════════════════════════════════
+// SKINS
+// ══════════════════════════════════════════════════════════════
+const SKIN_DEFS = {
+  default: {name:'Default',icon:'⬛',unlock:'Always unlocked'},
+  gold:    {name:'Gold',icon:'🥇',unlock:'Hit $15,000 in a week'},
+  inferno: {name:'Inferno',icon:'🔥',unlock:'Hit $20,000 in a week'},
+  blackout:{name:'Blackout',icon:'⚡',unlock:'Both locations hit target same week'},
+  ocean:   {name:'Ocean',icon:'🌊',unlock:'Oahu hits target 5 weeks straight'},
+  diamond: {name:'Diamond',icon:'💎',unlock:'Hit $15k target 3 weeks straight'},
+};
+let currentSkin = localStorage.getItem('pos-skin')||'default';
+
+function checkSkinUnlocks(){
+  const sqRevEl=document.getElementById('sq-rev');
+  const rev=sqRevEl?parseFloat(sqRevEl.textContent.replace(/[$,]/g,''))||0:0;
+  const unlocked=JSON.parse(localStorage.getItem('pos-skins-unlocked')||'["default"]');
+  const set=new Set(unlocked);
+  // Gold: hit $15k this week
+  if(rev>=15000) set.add('gold');
+  // Inferno: hit $20k
+  if(rev>=20000) set.add('inferno');
+  // Blackout: both locations hit target
+  if((squareByLoc.oahu||0)>=15000&&(squareByLoc.tucson||0)>=8000) set.add('blackout');
+  // Ocean: tracked via streak localStorage
+  const oahuStreak=parseInt(localStorage.getItem('pos-oahu-streak')||'0');
+  if(oahuStreak>=5) set.add('ocean');
+  // Diamond: 3 weeks straight
+  const weekStreak=parseInt(localStorage.getItem('pos-week-streak')||'0');
+  if(weekStreak>=3) set.add('diamond');
+  // Track weekly hits for streaks
+  if(rev>=15000){
+    const lastHitWk=localStorage.getItem('pos-last-hit-wk')||'';
+    const thisWk=weekStart().toDateString();
+    if(lastHitWk!==thisWk){
+      localStorage.setItem('pos-last-hit-wk',thisWk);
+      localStorage.setItem('pos-week-streak',Math.min((parseInt(localStorage.getItem('pos-week-streak')||'0')+1),99));
+    }
+  }
+  if((squareByLoc.oahu||0)>=15000){
+    const lastOahuWk=localStorage.getItem('pos-last-oahu-wk')||'';
+    const thisWk=weekStart().toDateString();
+    if(lastOahuWk!==thisWk){
+      localStorage.setItem('pos-last-oahu-wk',thisWk);
+      localStorage.setItem('pos-oahu-streak',Math.min((parseInt(localStorage.getItem('pos-oahu-streak')||'0')+1),99));
+    }
+  }
+  localStorage.setItem('pos-skins-unlocked',JSON.stringify([...set]));
+  return set;
+}
+
+function applySkin(name){
+  // Remove all skin classes
+  Object.keys(SKIN_DEFS).forEach(s=>document.body.classList.remove('skin-'+s));
+  if(name&&name!=='default') document.body.classList.add('skin-'+name);
+  currentSkin=name;
+  localStorage.setItem('pos-skin',name);
+}
+
+function renderSkinPicker(){
+  const el=document.getElementById('skin-picker');if(!el)return;
+  const unlocked=checkSkinUnlocks();
+  el.innerHTML=Object.entries(SKIN_DEFS).map(([id,s])=>{
+    const isUnlocked=unlocked.has(id);
+    const isActive=currentSkin===id;
+    return '<div onclick="'+(isUnlocked?'setSkinAndClose(\"'+id+'\")':'void 0')+'" style="'
+      +'display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;'
+      +'border:1px solid '+(isActive?'rgba(200,168,74,.4)':'var(--border)')+';'
+      +'background:'+(isActive?'var(--gold-lt)':'var(--bg3)')+';'
+      +'cursor:'+(isUnlocked?'pointer':'default')+';'
+      +'opacity:'+(isUnlocked?'1':'.35')+';">'
+      +'<div style="font-size:20px">'+s.icon+'</div>'
+      +'<div><div style="font-size:12px;font-weight:500;color:var(--text)">'+s.name+'</div>'
+      +'<div style="font-size:10px;color:var(--text3);font-family:var(--mono)">'+(isUnlocked?'Unlocked':'🔒 '+s.unlock)+'</div></div>'
+      +(isActive?'<div style="margin-left:auto;font-size:9px;font-family:var(--mono);color:var(--gold);background:var(--gold-lt);padding:2px 8px;border-radius:99px">Active</div>':'')
+      +'</div>';
+  }).join('');
+}
+
+function setSkinAndClose(name){
+  applySkin(name);
+  closeModal('skin');
+  renderSkinPicker();
+  toast(SKIN_DEFS[name].icon+' '+SKIN_DEFS[name].name+' skin applied');
+}
+
+function openSkinPicker(){
+  renderSkinPicker();
+  document.getElementById('mo-skin').classList.add('open');
+}
+
+// ══════════════════════════════════════════════════════════════
 // GAMIFICATION
 // ══════════════════════════════════════════════════════════════
 const LEVELS=[
@@ -3058,6 +3313,18 @@ function renderGame(){
       }).join('');
     }
   }catch(err){console.error('Game error:',err);}
+  updateSkinPreview();
+}
+
+function updateSkinPreview(){
+  const el=document.getElementById('skin-preview-name');
+  const icon=document.getElementById('skin-preview-icon');
+  const cnt=document.getElementById('skin-unlocked-count');
+  const s=SKIN_DEFS[currentSkin]||SKIN_DEFS.default;
+  if(el)el.textContent=s.name+' skin active';
+  if(icon)icon.textContent=s.icon;
+  const unlocked=JSON.parse(localStorage.getItem('pos-skins-unlocked')||'["default"]');
+  if(cnt)cnt.textContent=unlocked.length+'/'+Object.keys(SKIN_DEFS).length+' unlocked';
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -3078,7 +3345,7 @@ function runApp(){
   setLoc(currentLoc);
   checkDailyReset();checkFridayReminder();
   // Render from cache
-  renderKPIs();renderKPILog();updateBadge();renderNotes();updateNotesBadge();renderCommand();updateGoalBar();renderGame();
+  applySkin(currentSkin);updateSkinPreview();renderKPIs();renderKPILog();updateBadge();renderNotes();updateNotesBadge();renderCommand();updateGoalBar();renderGame();
   // Clock
   tick();setInterval(tick,30000);
   // Notifications
