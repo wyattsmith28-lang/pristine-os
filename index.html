@@ -1537,6 +1537,15 @@ function setLoc(loc){
     document.getElementById('loc-'+l).classList.toggle('active',l===loc);
   });
   document.getElementById('loc-label').textContent=LOC_NAMES[loc];
+  // Update hero revenue immediately from cached byLoc data
+  if(squareByLoc&&(squareByLoc.oahu>0||squareByLoc.tucson>0)){
+    const locRev=loc==='oahu'?squareByLoc.oahu:loc==='tucson'?squareByLoc.tucson:(squareByLoc.oahu||0)+(squareByLoc.tucson||0);
+    const sqEl=document.getElementById('sq-rev');
+    if(sqEl){sqEl.textContent='$'+Math.round(locRev).toLocaleString();}
+    const target=LOC_TARGETS[loc]||15000;
+    const gapEl=document.getElementById('sq-gap');
+    if(gapEl){const gap=Math.max(0,target-locRev);gapEl.textContent=gap>0?'$'+Math.round(gap).toLocaleString():'✓ Hit';}
+  }
   // Refresh current page
   const activePage=document.querySelector('.page.on');
   if(activePage){
@@ -2041,10 +2050,12 @@ function renderKPILog(){
   }).join('');
 }
 function updateGoalBar(){
-  const w=wkKPIs();const rev=sum(w,'rev');
+  const w=wkKPIs();const kpiRev=sum(w,'rev');
+  // Use location-filtered Square revenue
+  const sqLocRev=currentLoc==='oahu'?(squareByLoc.oahu||0):currentLoc==='tucson'?(squareByLoc.tucson||0):(squareByLoc.oahu||0)+(squareByLoc.tucson||0);
   const sqEl=document.getElementById('sq-rev');
-  const sqRev=sqEl?parseFloat(sqEl.textContent.replace(/[$,]/g,''))||0:0;
-  const totalRev=Math.max(rev,sqRev);
+  const sqRevDisplay=sqEl?parseFloat(sqEl.textContent.replace(/[$,]/g,''))||0:0;
+  const totalRev=sqLocRev>0?sqLocRev:sqRevDisplay>0?sqRevDisplay:kpiRev;
   const target=LOC_TARGETS[currentLoc]||15000;
   const pct=Math.min(100,Math.round(totalRev/target*100));
   const fill=document.getElementById('goal-bar-fill');if(fill)fill.style.width=pct+'%';
@@ -2332,7 +2343,8 @@ function fetchSquare(){
       document.getElementById('sq-jobs').textContent=jobs;
       document.getElementById('sq-gap').textContent=gap>0?'$'+Math.round(gap).toLocaleString():'✓ Hit';
       const rt=document.getElementById('sq-rev').parentElement;rt.className='kt '+(rev>=(LOC_TARGETS[currentLoc]||15000)?'g':rev>=(LOC_TARGETS[currentLoc]||15000)*.8?'a':'r');
-      document.getElementById('sq-rev').className='kt-v '+(rev>=(LOC_TARGETS[currentLoc]||15000)?'g':rev>=(LOC_TARGETS[currentLoc]||15000)*.8?'a':'r');
+      const heroRevEl=document.getElementById('sq-rev');
+      if(heroRevEl){heroRevEl.className='hero-rev '+(rev>=target?'g':rev>=target*.8?'a':'r');}
       if(statusEl)statusEl.textContent='Synced '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
       setDot('sq-dot','ok');if(d.byDay)squareByDay=d.byDay;
       if(d.byLocation)squareByLoc=d.byLocation;
