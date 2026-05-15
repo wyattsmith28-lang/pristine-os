@@ -1439,6 +1439,7 @@ body{display:flex!important;flex-direction:row!important}
 // ══════════════════════════════════════════════════════════════
 // HARDCODED URLS
 // ══════════════════════════════════════════════════════════════
+const URL_BOOKINGS_OAHU = 'https://script.google.com/macros/s/AKfycbwUUFMWgg_lm3wWhkLzowuUdx7IwcIxAnn5qOscuEtyVmPh5fVI8OZffIVAzE8iWxf5XA/exec';
 const URL_SQUARE    = 'https://script.google.com/macros/s/AKfycbyIUmrVSJidDgBBeRP1CrymJIckN65Nov1RfiuyehE3Qa1hoC1QKrwKm3Q5E8wBYY7BJQ/exec';
 const URL_LEADS     = 'https://script.google.com/macros/s/AKfycbzoUSCWjY43FrGBDEJwZuxjFl1nMg9wXHZK5i2Hu1DDmKpcLipH1F2yG2XiW55ja0Z5/exec';
 const URL_JOHN      = 'https://script.google.com/macros/s/AKfycbxey5bJ4H0c2sqDo6VTtC9jnnd2NV1WTglzrG_a53ksCBqMSY0xPr2sjH9UgAXOEZ3Biw/exec';
@@ -1496,6 +1497,7 @@ const S = {
   parked:    localStorage.getItem('pos-parked')||''
 };
 const persist = k => localStorage.setItem('pos-'+k, JSON.stringify(S[k]));
+let bookingsOahu=[], bookingsTucson=[];
 let squareByDay={}, squareByLoc={oahu:0,tucson:0}, squarePayroll={total:0,oahu:0,tucson:0,employees:[],shiftsFound:0}, johnData=[], johnFilter='all', syncWritePending={};
 let johnPaid=JSON.parse(localStorage.getItem('pos-john-paid')||'{}');
 let johnManualPayout=JSON.parse(localStorage.getItem('pos-john-manual')||'{}');
@@ -1756,6 +1758,7 @@ function nav(p){
   if(p==='report')  { buildReport(); setTimeout(loadReportInputs, 50); }
   if(p==='performance') renderPerf();
   if(p==='game') renderGame();
+  if(p==='bookings'){fetchBookings();}
   if(p==='notes')   {renderNotes();updateNotesBadge();}
   if(p==='salesmen') renderJohn();
 }
@@ -3367,6 +3370,116 @@ function updateSkinPreview(){
   if(icon)icon.textContent=s.icon;
   const unlocked=JSON.parse(localStorage.getItem('pos-skins-unlocked')||'["default"]');
   if(cnt)cnt.textContent=unlocked.length+'/'+Object.keys(SKIN_DEFS).length+' unlocked';
+}
+
+// ══════════════════════════════════════════════════════════════
+// BOOKINGS
+// ══════════════════════════════════════════════════════════════
+function fetchBookings(){
+  const dot=document.getElementById('bookings-dot');
+  const status=document.getElementById('bookings-sync-status');
+  if(dot)dot.className='status-dot loading';
+  if(status)status.textContent='Syncing...';
+  gasFetch(URL_BOOKINGS_OAHU,function(rows){
+    bookingsOahu=Array.isArray(rows)?rows:[];
+    if(dot)dot.className='status-dot ok';
+    if(status)status.textContent='Synced '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    renderBookings();
+    updateBookingsBadge();
+  },function(){
+    if(dot)dot.className='status-dot err';
+    if(status)status.textContent='Offline';
+  });
+}
+
+function updateBookingsBadge(){
+  const today=new Date().toLocaleDateString();
+  const todayJobs=bookingsOahu.filter(b=>{
+    const d=b.date_booked||b.timestamp||'';
+    return String(d).includes(today.split('/')[0]+'/'+today.split('/')[1]);
+  });
+  const badge=document.getElementById('bookings-badge');
+  if(badge){
+    if(todayJobs.length>0){badge.style.display='block';}
+    else{badge.style.display='none';}
+  }
+}
+
+function setBookingStatus(idx,status){
+  if(bookingsOahu[idx])bookingsOahu[idx]._status=status;
+  localStorage.setItem('pos-booking-status-'+idx, status);
+  renderBookings();
+  toast('Status updated: '+status);
+}
+
+function renderBookings(){
+  const todayEl=document.getElementById('bookings-today');
+  const allEl=document.getElementById('bookings-all');
+  if(!todayEl||!allEl)return;
+
+  if(!bookingsOahu.length){
+    todayEl.innerHTML='<div style="text-align:center;padding:40px 20px;color:var(--text3);font-family:var(--mono);font-size:11px;letter-spacing:.06em">No bookings yet — they will appear here when customers book</div>';
+    allEl.innerHTML='';
+    return;
+  }
+
+  // Sort newest first
+  const sorted=[...bookingsOahu].reverse();
+
+  // Today's jobs — filter by today's date
+  const today=new Date();
+  const todayStr=today.toLocaleDateString([],{month:'numeric',day:'numeric',year:'numeric'});
+  const todayJobs=sorted.filter(b=>{
+    const d=String(b.date_booked||b.timestamp||'');
+    return d.includes(todayStr.split('/')[0]+'/'+todayStr.split('/')[1]);
+  });
+
+  const statusColors={
+    'Pending':'var(--amber2)',
+    'Confirmed':'var(--blue2)',
+    'In Progress':'var(--gold)',
+    'Done':'var(--green2)',
+    'Cancelled':'var(--red2)'
+  };
+
+  function buildCard(b,i,compact){
+    const status=localStorage.getItem('pos-booking-status-'+bookingsOahu.indexOf(b))||b.status||'Pending';
+    const sc=statusColors[status]||'var(--text3)';
+    const addons=b.add_ons||b.addons||'None';
+    const hasAddons=addons&&addons!=='None'&&addons!=='';
+    return`<div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:16px 18px;margin-bottom:8px;position:relative;overflow:hidden">
+      <div style="position:absolute;top:0;left:0;width:3px;bottom:0;background:${sc};border-radius:99px 0 0 99px"></div>
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px">
+        <div>
+          <div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:3px;letter-spacing:-.01em">${b.service||'Unknown service'}</div>
+          <div style="font-size:11px;font-family:var(--mono);color:var(--text3);letter-spacing:.03em">${b.vehicle_size||'—'} vehicle</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-family:var(--serif);font-size:22px;color:var(--gold);letter-spacing:-.02em">${b.total||'—'}</div>
+          <div style="font-size:9px;font-family:var(--mono);color:var(--text3)">${b.base_price||'—'} base</div>
+        </div>
+      </div>
+      ${hasAddons?`<div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 12px;margin-bottom:10px;font-size:11px;color:var(--text2)"><span style="color:var(--text3);font-family:var(--mono);font-size:9px;text-transform:uppercase;letter-spacing:.08em">Add-ons: </span>${addons}</div>`:''}
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+        <div style="font-size:10px;font-family:var(--mono);color:var(--text3)">${b.timestamp||b.date_booked||'—'}</div>
+        <div style="display:flex;gap:5px;flex-wrap:wrap">
+          ${['Pending','Confirmed','In Progress','Done','Cancelled'].map(s=>`<div onclick="setBookingStatus(${bookingsOahu.indexOf(b)},'${s}')" style="font-size:8.5px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.05em;padding:3px 9px;border-radius:99px;cursor:pointer;border:1px solid ${s===status?sc:'var(--border)'};background:${s===status?'rgba('+hexToRgb(sc)+',0.12)':'transparent'};color:${s===status?sc:'var(--text3)'};transition:all .2s">${s}</div>`).join('')}
+        </div>
+      </div>
+    </div>`;
+  }
+
+  todayEl.innerHTML=todayJobs.length
+    ?todayJobs.map((b,i)=>buildCard(b,i,false)).join('')
+    :'<div style="padding:14px 18px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;font-size:12px;color:var(--text3);font-family:var(--mono)">No bookings for today yet</div>';
+
+  allEl.innerHTML=sorted.map((b,i)=>buildCard(b,i,true)).join('');
+}
+
+function hexToRgb(cssVar){
+  // Approximate RGB for status colors
+  const map={'var(--amber2)':'212,114,58','var(--blue2)':'74,143,212','var(--gold)':'200,168,74','var(--green2)':'61,184,112','var(--red2)':'224,85,112','var(--text3)':'74,72,64'};
+  return map[cssVar]||'200,168,74';
 }
 
 // ══════════════════════════════════════════════════════════════
